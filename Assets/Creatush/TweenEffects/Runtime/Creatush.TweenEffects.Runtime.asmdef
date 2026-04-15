@@ -1,0 +1,16 @@
+{
+    "name": "Creatush.TweenEffects.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:68a39df7aa38f45a99137e40cd65bcdf"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
