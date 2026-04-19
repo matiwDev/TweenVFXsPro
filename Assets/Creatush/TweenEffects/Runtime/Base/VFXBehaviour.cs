@@ -3,26 +3,25 @@ using DG.Tweening;
 
 namespace Creatush.TweenEffects
 {
-    /// <summary>
-    /// The abstract base for all effects in the Creatush ecosystem.
-    /// </summary>
     public abstract class VFXBehaviour : MonoBehaviour
     {
         [Header("Global Timing")]
-        [SerializeField]
-        [Tooltip("The animation curve applied to this behavior.")]
-        protected Ease easeType = Ease.OutQuad;
+        public Ease easeType = Ease.OutQuad;
+        [Min(0.01f)] public float duration = 0.5f;
 
-        [SerializeField, Min(0.01f)]
-        [Tooltip("How long this specific step takes to complete.")]
-        protected float duration = 0.5f;
+        protected virtual Sequence InitializeSequence()
+        {
+            Sequence s = DOTween.Sequence();
 
-        /// <summary>
-        /// Builds and returns a DOTween Sequence for the given target.
-        /// </summary>
-        /// <param name="index">Current item index (0 for single objects).</param>
-        /// <param name="totalCount">Total items in the operation (1 for single objects).</param>
-        /// <param name="target">The Transform being animated.</param>
+            // Pro Feature: Automatically sync with Global Brain
+            if (TweenSettingsSO.Instance != null)
+            {
+                s.timeScale = TweenSettingsSO.Instance.globalTimeScale;
+            }
+
+            return s;
+        }
+
         public abstract Sequence BuildSequence(int index, int totalCount, Transform target);
 
         [ContextMenu("Test Effect Locally")]
