@@ -1,0 +1,19 @@
+{
+    "name": "Creatush.TweenEffectsPro.Runtime",
+    "rootNamespace": "Creatush.TweenEffectsPro",
+    "references": [
+        "DOTween.Modules"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "DOTween.dll",
+        "DOTweenPro.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
