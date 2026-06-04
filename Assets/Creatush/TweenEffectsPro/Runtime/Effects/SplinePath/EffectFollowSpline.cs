@@ -29,7 +29,9 @@ namespace Creatush.TweenEffectsPro
 
         [Header("Playback")]
         [SerializeField] private SplinePathSO.LoopMode splineLoopMode = SplinePathSO.LoopMode.Once;
-        [SerializeField, Min(1)] private int splineLoopCount = 1;
+
+        [SerializeField, Tooltip("How many times to loop. -1 = infinite. Only used when Loop Mode is not Once.")]
+        private int splineLoopCount = -1;
 
         [SerializeField, Range(0f, 1f),
          Tooltip("Normalised start point along the path (0 = beginning, 1 = end).")]
