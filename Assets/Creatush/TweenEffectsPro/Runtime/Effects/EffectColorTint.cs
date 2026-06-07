@@ -10,12 +10,12 @@ namespace Creatush.TweenEffectsPro
     {
         [Header("Color Settings")]
         [SerializeField] private Color startColor = Color.white;
-        [SerializeField] private Color endColor   = new Color(1f, 0.3f, 0.3f, 1f);
+        [SerializeField] private Color endColor = new Color(1f, 0.3f, 0.3f, 1f);
 
 
         public override float GetDuration() { return duration; }
 
-                public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(int index, int totalCount, Transform target)
         {
             if (target == null) return null;
 

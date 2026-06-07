@@ -18,9 +18,9 @@ namespace Creatush.TweenEffectsPro.Editor
         private SerializedProperty _loopInterval;
 
         // ── Foldout state (SessionState so it persists across selection) ──────
-        private static readonly string KEY_TIMING   = "VFXEd.Timing";
-        private static readonly string KEY_LOOP     = "VFXEd.Loop";
-        private static readonly string KEY_EFFECT   = "VFXEd.Effect";
+        private static readonly string KEY_TIMING = "VFXEd.Timing";
+        private static readonly string KEY_LOOP = "VFXEd.Loop";
+        private static readonly string KEY_EFFECT = "VFXEd.Effect";
 
         private bool _foldTiming;
         private bool _foldLoop;
@@ -37,19 +37,19 @@ namespace Creatush.TweenEffectsPro.Editor
         {
             if (serializedObject == null) return;
 
-            _duration     = serializedObject.FindProperty("duration");
-            _easeMode     = serializedObject.FindProperty("easeMode");
-            _ease         = serializedObject.FindProperty("ease");
-            _easeCurve    = serializedObject.FindProperty("easeCurve");
-            _loop         = serializedObject.FindProperty("loop");
-            _loopCount    = serializedObject.FindProperty("loopCount");
+            _duration = serializedObject.FindProperty("duration");
+            _easeMode = serializedObject.FindProperty("easeMode");
+            _ease = serializedObject.FindProperty("ease");
+            _easeCurve = serializedObject.FindProperty("easeCurve");
+            _loop = serializedObject.FindProperty("loop");
+            _loopCount = serializedObject.FindProperty("loopCount");
             _loopInterval = serializedObject.FindProperty("loopInterval");
 
             _settings = Resources.Load<TweenSettingsSO>("TweenSettings");
 
             // Restore foldout state from session
             _foldTiming = SessionState.GetBool(KEY_TIMING, true);
-            _foldLoop   = SessionState.GetBool(KEY_LOOP,   false);
+            _foldLoop = SessionState.GetBool(KEY_LOOP, false);
             _foldEffect = SessionState.GetBool(KEY_EFFECT, true);
         }
 
@@ -60,7 +60,7 @@ namespace Creatush.TweenEffectsPro.Editor
             _foldoutStyle = new GUIStyle(EditorStyles.foldoutHeader)
             {
                 fontStyle = FontStyle.Bold,
-                fontSize  = 11,
+                fontSize = 11,
             };
 
             _sectionStyle = new GUIStyle(EditorStyles.helpBox);
@@ -80,7 +80,7 @@ namespace Creatush.TweenEffectsPro.Editor
             EditorGUILayout.Space(4);
 
             DrawFoldoutSection("🕒  Timing & Easing", KEY_TIMING, ref _foldTiming, DrawTimingEasing);
-            DrawFoldoutSection("🔁  Loop",            KEY_LOOP,   ref _foldLoop,   DrawLoop);
+            DrawFoldoutSection("🔁  Loop", KEY_LOOP, ref _foldLoop, DrawLoop);
             DrawFoldoutSection("🎨  Effect Settings", KEY_EFFECT, ref _foldEffect, DrawEffectSettings);
 
             serializedObject.ApplyModifiedProperties();
@@ -240,10 +240,10 @@ namespace Creatush.TweenEffectsPro.Editor
         private static bool HasController(VFXBehaviour behaviour)
         {
             // Search self + all parents (GetComponentInParent includes self)
-            if (behaviour.GetComponentInParent<SingleEffectController>()   != null) return true;
+            if (behaviour.GetComponentInParent<SingleEffectController>() != null) return true;
             if (behaviour.GetComponentInParent<SequenceEffectsController>() != null) return true;
             if (behaviour.GetComponentInParent<ParallelEffectsController>() != null) return true;
-            if (behaviour.GetComponentInParent<StaggerEffectsController>()  != null) return true;
+            if (behaviour.GetComponentInParent<StaggerEffectsController>() != null) return true;
             return false;
         }
 
@@ -271,7 +271,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
         private void CreateSettingsAsset()
         {
-            const string dir  = "Assets/Resources";
+            const string dir = "Assets/Resources";
             const string path = dir + "/TweenSettings.asset";
 
             if (!System.IO.Directory.Exists(dir))

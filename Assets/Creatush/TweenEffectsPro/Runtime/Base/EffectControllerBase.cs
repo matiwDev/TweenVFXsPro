@@ -54,7 +54,7 @@ namespace Creatush.TweenEffectsPro
     public abstract class EffectControllerBase : MonoBehaviour
     {
         [SerializeField] public ControllerAutoPlay autoPlay = new ControllerAutoPlay();
-        [SerializeField] public OutAnimSettings    outAnim  = new OutAnimSettings();
+        [SerializeField] public OutAnimSettings outAnim = new OutAnimSettings();
 
         private Coroutine _loopCoroutine;
 
@@ -78,7 +78,7 @@ namespace Creatush.TweenEffectsPro
 
         // ── Public API ────────────────────────────────────────────────────────
 
-        public void Play()        => PlayInternal(reverse: false, speed: 1f);
+        public void Play() => PlayInternal(reverse: false, speed: 1f);
         public void PlayReverse(float speed = 1f) => PlayInternal(reverse: true, speed);
 
         public void Hide()
@@ -129,7 +129,7 @@ namespace Creatush.TweenEffectsPro
         {
             float dur = GetDuration() / Mathf.Max(0.01f, outAnim.speed);
             if (outAnim.reverse) PlayReverse(outAnim.speed);
-            else                 Play();
+            else Play();
             yield return new WaitForSeconds(dur);
             outAnim.OnOutComplete?.Invoke();
             gameObject.SetActive(false);

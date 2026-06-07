@@ -20,21 +20,21 @@ namespace Creatush.TweenEffectsPro
         public EffectFloat()
         {
             // Sensible defaults for an idle loop
-            loop      = true;
+            loop = true;
             loopCount = -1;
-            ease      = Ease.InOutSine;
+            ease = Ease.InOutSine;
         }
 
 
         public override float GetDuration() { return duration * 2f; }
 
-                public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(int index, int totalCount, Transform target)
         {
             if (target == null) return null;
 
-            Vector3 origin   = target.localPosition;
-            Vector3 peak     = origin + new Vector3(0f, amplitude, 0f);
-            Vector3 tiltUp   = new Vector3( tiltDegrees, 0f, 0f);
+            Vector3 origin = target.localPosition;
+            Vector3 peak = origin + new Vector3(0f, amplitude, 0f);
+            Vector3 tiltUp = new Vector3(tiltDegrees, 0f, 0f);
             Vector3 tiltDown = new Vector3(-tiltDegrees, 0f, 0f);
 
             Sequence seq = DOTween.Sequence();

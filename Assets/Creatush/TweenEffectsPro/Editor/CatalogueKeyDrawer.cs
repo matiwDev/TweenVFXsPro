@@ -16,7 +16,7 @@ namespace Creatush.TweenEffectsPro.Editor
                 return;
             }
 
-            var attr      = (CatalogueKeyAttribute)attribute;
+            var attr = (CatalogueKeyAttribute)attribute;
             var catalogue = GetCatalogue(property, attr.catalogueFieldName);
 
             if (catalogue == null)
@@ -31,13 +31,13 @@ namespace Creatush.TweenEffectsPro.Editor
                     new Rect(position.x + w * 0.76f, position.y, w * 0.24f, position.height),
                     "No catalogue",
                     new GUIStyle(EditorStyles.miniLabel)
-                        { normal = { textColor = new Color(1f, 0.6f, 0.2f) } });
+                    { normal = { textColor = new Color(1f, 0.6f, 0.2f) } });
                 EditorGUI.EndProperty();
                 return;
             }
 
             // Build key list from catalogue
-            var keys    = new List<string> { "(none)" };
+            var keys = new List<string> { "(none)" };
             foreach (var entry in catalogue.Entries)
                 if (!string.IsNullOrEmpty(entry.key)) keys.Add(entry.key);
 
@@ -66,7 +66,7 @@ namespace Creatush.TweenEffectsPro.Editor
         {
             float h = EditorGUIUtility.singleLineHeight;
             // Extra row if key is missing from catalogue
-            var attr      = (CatalogueKeyAttribute)attribute;
+            var attr = (CatalogueKeyAttribute)attribute;
             var catalogue = GetCatalogue(property, attr.catalogueFieldName);
             if (catalogue != null
                 && !string.IsNullOrEmpty(property.stringValue)
@@ -78,7 +78,7 @@ namespace Creatush.TweenEffectsPro.Editor
         private static EffectCatalogue GetCatalogue(SerializedProperty property, string fieldName)
         {
             var targetObj = property.serializedObject.targetObject;
-            var field     = targetObj.GetType().GetField(
+            var field = targetObj.GetType().GetField(
                 fieldName,
                 System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Public |

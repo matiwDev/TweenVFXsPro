@@ -11,12 +11,12 @@ namespace Creatush.TweenEffectsPro
         public class SequenceStep
         {
             public VFXBehaviour behavior;
-            public float        delay        = 0f;
-            public bool         joinPrevious = false;
+            public float delay = 0f;
+            public bool joinPrevious = false;
         }
 
         [SerializeField] private List<SequenceStep> sequenceSteps = new List<SequenceStep>();
-        [SerializeField] private Transform          targetOverride;
+        [SerializeField] private Transform targetOverride;
 
         // ── EffectControllerBase ──────────────────────────────────────────────
 
@@ -34,8 +34,8 @@ namespace Creatush.TweenEffectsPro
             {
                 if (step.behavior == null) continue;
 
-                Transform t       = targetOverride != null ? targetOverride : step.behavior.transform;
-                Sequence  stepSeq = step.behavior.BuildSequence(0, 1, t);
+                Transform t = targetOverride != null ? targetOverride : step.behavior.transform;
+                Sequence stepSeq = step.behavior.BuildSequence(0, 1, t);
 
                 if (reverse)
                 {
@@ -83,7 +83,7 @@ namespace Creatush.TweenEffectsPro
         }
 
         // Read-only for editor
-        public IReadOnlyList<SequenceStep> Steps        => sequenceSteps;
-        public Transform                   TargetOverride => targetOverride;
+        public IReadOnlyList<SequenceStep> Steps => sequenceSteps;
+        public Transform TargetOverride => targetOverride;
     }
 }

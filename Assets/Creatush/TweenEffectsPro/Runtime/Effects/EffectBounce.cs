@@ -11,16 +11,12 @@ namespace Creatush.TweenEffectsPro
         private float bounceHeight = 40f;
 
         [SerializeField, Range(0f, 1f),
-         Tooltip("Squash and stretch strength.\n" +
-                 "0 = no deformation, 1 = full cartoon squash/stretch.")]
+         Tooltip("Squash and stretch strength.\n0 = no deformation, 1 = full cartoon squash/stretch.")]
         private float squashStrength = 0.3f;
 
         [SerializeField, Range(0f, 2f),
-         Tooltip("How springy the landing recovery is.\n" +
-                 "0 = snaps back instantly, 2 = very bouncy overshoot.")]
+         Tooltip("How springy the landing recovery is.\n0 = snaps back instantly, 2 = very bouncy overshoot.")]
         private float bounciness = 1f;
-
-        // ── VFXBehaviour ──────────────────────────────────────────────────────
 
         public override float GetDuration() { return duration; }
 
@@ -28,66 +24,86 @@ namespace Creatush.TweenEffectsPro
         {
             if (target == null) return null;
 
-            Vector3 originPos   = target.localPosition;
+            Vector3 originPos = target.localPosition;
             Vector3 originScale = target.localScale;
 
-            // ── Timing breakdown ──────────────────────────────────────────────
-            // 0.0 – riseTime  : rise to apex
-            // riseTime        : apex (brief scale normalise)
-            // riseTime – dur  : fall back to ground (impact at t = duration)
-            // dur – dur+recov : landing recovery spring
-            float riseTime    = duration * 0.45f;
-            float fallTime    = duration * 0.55f;
-            float impactTime  = riseTime + fallTime; // = duration
-            float recovTime   = duration * 0.2f;
-
             // ── Scale values ──────────────────────────────────────────────────
-            // Rise stretch: tall + thin
-            float riseStretchY = 1f + squashStrength;
-            float riseSquashXZ = 1f - squashStrength * 0.5f;
-            Vector3 riseScale  = new Vector3(
-                originScale.x * riseSquashXZ,
-                originScale.y * riseStretchY,
-                originScale.z * riseSquashXZ);
+            float stretchFactor = 1f + squashStrength;
+            float squashFactor = 1f - squashStrength * 0.5f;
 
-            // Landing squash: wide + flat
-            float landSquashY  = 1f - squashStrength * 0.8f;
-            float landStretchX = 1f + squashStrength * 0.4f;
-            Vector3 landScale  = new Vector3(
-                originScale.x * landStretchX,
-                originScale.y * landSquashY,
-                originScale.z * landStretchX);
+            Vector3 stretchScale = new Vector3(
+                originScale.x * squashFactor,
+                originScale.y * stretchFactor,
+                originScale.z * squashFactor);
+
+            Vector3 landScale = new Vector3(
+                originScale.x * (1f + squashStrength * 0.4f),
+                originScale.y * (1f - squashStrength * 0.8f),
+                originScale.z * (1f + squashStrength * 0.4f));
+
+            // ── Pivot simulation via position offset ───────────────────────────
+            // When we stretch the Y scale, the object grows around its centre.
+            // To simulate "pivot=bottom" (bottom stays planted), we shift the
+            // object up by half the extra height so the bottom doesn't move.
+            // extraHeight = originScale.y * (stretchFactor - 1) * 0.5
+            float extraHeight = originScale.y * squashStrength * 0.5f;
+
+            // Stretch-up planted position (bottom stays on floor)
+            Vector3 stretchUpPos = originPos + Vector3.up * extraHeight;
+
+            // At apex, object is at bounceHeight + stretchUpPos.y
+            // When we unstretch at apex, centre moves back down by extraHeight
+            Vector3 apexPos = new Vector3(originPos.x,
+                                         originPos.y + bounceHeight,
+                                         originPos.z);
+            Vector3 apexStretchPos = apexPos + Vector3.up * extraHeight;
+
+            // Landing squash: bottom stays on floor, object squashes down
+            // squashY = originScale.y * (1 - squashStrength*0.8)
+            // object centre drops by half the lost height
+            float lostHeight = originScale.y * squashStrength * 0.8f * 0.5f;
+            Vector3 landSquashPos = originPos - Vector3.up * lostHeight;
+
+            // ── Timing ────────────────────────────────────────────────────────
+            float tStretchUp = duration * 0.08f;
+            float tRise = duration * 0.37f;
+            float tUnstretch = duration * 0.08f;
+            float tFall = duration * 0.37f;
+            float tLandSquash = duration * 0.10f;
+            float tRecover = duration * 0.18f;
 
             Sequence seq = DOTween.Sequence();
 
-            // ── Position ──────────────────────────────────────────────────────
-            // Rise
-            seq.Insert(0f,
-                ApplyEase(target.DOLocalMoveY(originPos.y + bounceHeight, riseTime)));
-            // Fall — InQuad for gravity feel
-            seq.Insert(riseTime,
-                target.DOLocalMoveY(originPos.y, fallTime).SetEase(Ease.InQuad));
+            // ── 1. Stretch up — bottom stays planted ──────────────────────────
+            // Scale and position change together so bottom is fixed
+            seq.Append(target.DOScale(stretchScale, tStretchUp).SetEase(Ease.OutQuad));
+            seq.Join(target.DOLocalMove(stretchUpPos, tStretchUp).SetEase(Ease.OutQuad));
 
-            // ── Scale ─────────────────────────────────────────────────────────
-            // Stretch on the way up (first 40% of rise)
-            seq.Insert(0f,
-                target.DOScale(riseScale, riseTime * 0.4f).SetEase(Ease.OutQuad));
-            // Return to normal at apex
-            seq.Insert(riseTime * 0.4f,
-                target.DOScale(originScale, riseTime * 0.6f).SetEase(Ease.InOutQuad));
-            // Pre-squash during fall (last 20% of fall, anticipates landing)
-            seq.Insert(riseTime + fallTime * 0.8f,
-                target.DOScale(landScale, fallTime * 0.2f).SetEase(Ease.InQuad));
-            // Recovery spring from land scale back to origin
-            seq.Insert(impactTime,
-                target.DOScale(originScale, recovTime)
-                    .SetEase(Ease.OutBack, 1f + bounciness));
+            // ── 2. Rise to apex — stretched, bottom lifts off ─────────────────
+            seq.Append(ApplyEase(target.DOLocalMove(apexStretchPos, tRise)));
 
-            // ── Cleanup ───────────────────────────────────────────────────────
+            // ── 3. Unstretch at apex — top stays fixed ────────────────────────
+            // Scale shrinks back, position drops by extraHeight to keep top fixed
+            seq.Append(target.DOScale(originScale, tUnstretch).SetEase(Ease.InOutQuad));
+            seq.Join(target.DOLocalMove(apexPos, tUnstretch).SetEase(Ease.InOutQuad));
+
+            // ── 4. Fall to ground ─────────────────────────────────────────────
+            seq.Append(target.DOLocalMove(originPos, tFall).SetEase(Ease.InQuad));
+
+            // ── 5. Landing squash — bottom stays planted ──────────────────────
+            seq.Append(target.DOScale(landScale, tLandSquash).SetEase(Ease.OutQuad));
+            seq.Join(target.DOLocalMove(landSquashPos, tLandSquash).SetEase(Ease.OutQuad));
+
+            // ── 6. Recovery spring ────────────────────────────────────────────
+            seq.Append(target.DOScale(originScale, tRecover)
+                .SetEase(Ease.OutBack, 1f + bounciness));
+            seq.Join(target.DOLocalMove(originPos, tRecover)
+                .SetEase(Ease.OutBack, 1f + bounciness));
+
             seq.OnComplete(() =>
             {
                 target.localPosition = originPos;
-                target.localScale    = originScale;
+                target.localScale = originScale;
             });
 
             return FinaliseSequence(seq);

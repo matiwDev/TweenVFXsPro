@@ -28,10 +28,10 @@ namespace Creatush.TweenEffectsPro
         {
             if (target == null) return null;
 
-            GameObject pivotGO       = new GameObject("_OrbitPivot");
-            Transform  pivot         = pivotGO.transform;
-            Transform  originalParent = target.parent;
-            int        originalIdx   = target.GetSiblingIndex();
+            GameObject pivotGO = new GameObject("_OrbitPivot");
+            Transform pivot = pivotGO.transform;
+            Transform originalParent = target.parent;
+            int originalIdx = target.GetSiblingIndex();
 
             pivot.SetParent(target.parent, worldPositionStays: true);
             pivot.position = target.position + pivotOffset;
@@ -50,7 +50,7 @@ namespace Creatush.TweenEffectsPro
                 pivot.DORotate(axis.normalized * degrees, duration, RotateMode.FastBeyond360)));
 
             seq.OnComplete(() => Restore());
-            seq.OnKill(()    => Restore());
+            seq.OnKill(() => Restore());
 
             return FinaliseSequence(seq);
         }

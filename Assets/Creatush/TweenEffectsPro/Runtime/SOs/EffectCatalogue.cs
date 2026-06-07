@@ -20,10 +20,10 @@ namespace Creatush.TweenEffectsPro
         public class CatalogueEntry
         {
             [Tooltip("Unique name used to retrieve this effect at runtime.")]
-            public string       key;
+            public string key;
             public VFXBehaviour effect;
             [TextArea(1, 3)]
-            public string       description;
+            public string description;
         }
 
         [SerializeField] private List<CatalogueEntry> entries = new List<CatalogueEntry>();

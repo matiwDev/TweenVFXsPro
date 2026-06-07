@@ -9,9 +9,9 @@ namespace Creatush.TweenEffectsPro.Editor
     public class SplinePathEditor : UnityEditor.Editor
     {
         // ── State ─────────────────────────────────────────────────────────────
-        private SplinePath     _spline;
-        private SplinePathSO   _asset;
-        private int            _selectedKnot = -1;
+        private SplinePath _spline;
+        private SplinePathSO _asset;
+        private int _selectedKnot = -1;
 
         // Cached styles
         private GUIStyle _headerStyle;
@@ -19,16 +19,16 @@ namespace Creatush.TweenEffectsPro.Editor
         private GUIStyle _boldLabel;
 
         // ── Constants ─────────────────────────────────────────────────────────
-        private const float CURVE_STEPS       = 60f;
+        private const float CURVE_STEPS = 60f;
         private const float TANGENT_HANDLE_SIZE = 0.06f;
-        private const float KNOT_HANDLE_SIZE    = 0.08f;
+        private const float KNOT_HANDLE_SIZE = 0.08f;
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
         private void OnEnable()
         {
             _spline = (SplinePath)target;
-            _asset  = _spline?.Asset;
+            _asset = _spline?.Asset;
             Tools.hidden = false;
         }
 
@@ -79,9 +79,9 @@ namespace Creatush.TweenEffectsPro.Editor
                 _asset.arcPrecision, 50, 500);
 
             EditorGUILayout.Space(4);
-            _asset.pathColor    = EditorGUILayout.ColorField("Path Colour",    _asset.pathColor);
+            _asset.pathColor = EditorGUILayout.ColorField("Path Colour", _asset.pathColor);
             _asset.tangentColor = EditorGUILayout.ColorField("Tangent Colour", _asset.tangentColor);
-            _asset.pointSize    = EditorGUILayout.Slider("Point Size", _asset.pointSize, 4f, 24f);
+            _asset.pointSize = EditorGUILayout.Slider("Point Size", _asset.pointSize, 4f, 24f);
 
             if (EditorGUI.EndChangeCheck())
                 _asset.MarkDirty();
@@ -98,10 +98,10 @@ namespace Creatush.TweenEffectsPro.Editor
             if (_asset.overridePlayback)
             {
                 EditorGUI.indentLevel++;
-                _asset.defaultSpeedMode   = (SplinePathSO.SpeedMode)EditorGUILayout.EnumPopup("Speed Mode",   _asset.defaultSpeedMode);
-                _asset.defaultLoopMode    = (SplinePathSO.LoopMode)EditorGUILayout.EnumPopup("Loop Mode",    _asset.defaultLoopMode);
-                _asset.defaultLoopCount   = EditorGUILayout.IntField("Loop Count",   _asset.defaultLoopCount);
-                _asset.defaultStartOffset = EditorGUILayout.Slider("Start Offset",   _asset.defaultStartOffset, 0f, 1f);
+                _asset.defaultSpeedMode = (SplinePathSO.SpeedMode)EditorGUILayout.EnumPopup("Speed Mode", _asset.defaultSpeedMode);
+                _asset.defaultLoopMode = (SplinePathSO.LoopMode)EditorGUILayout.EnumPopup("Loop Mode", _asset.defaultLoopMode);
+                _asset.defaultLoopCount = EditorGUILayout.IntField("Loop Count", _asset.defaultLoopCount);
+                _asset.defaultStartOffset = EditorGUILayout.Slider("Start Offset", _asset.defaultStartOffset, 0f, 1f);
                 EditorGUI.indentLevel--;
             }
 
@@ -133,7 +133,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
                 // Select in scene
                 bool isSelected = _selectedKnot == i;
-                var  selStyle   = isSelected
+                var selStyle = isSelected
                     ? new GUIStyle(EditorStyles.miniButton) { normal = { textColor = new Color(0.3f, 0.8f, 1f) } }
                     : EditorStyles.miniButton;
 
@@ -167,10 +167,10 @@ namespace Creatush.TweenEffectsPro.Editor
                     EditorGUI.indentLevel++;
 
                     EditorGUI.BeginChangeCheck();
-                    k.point      = EditorGUILayout.Vector3Field("Position",     k.point);
-                    k.tangentOut = EditorGUILayout.Vector3Field("Tangent Out",  k.tangentOut);
-                    k.tangentIn  = EditorGUILayout.Vector3Field("Tangent In",   k.tangentIn);
-                    k.roll       = EditorGUILayout.Slider("Roll (°)", k.roll, -180f, 180f);
+                    k.point = EditorGUILayout.Vector3Field("Position", k.point);
+                    k.tangentOut = EditorGUILayout.Vector3Field("Tangent Out", k.tangentOut);
+                    k.tangentIn = EditorGUILayout.Vector3Field("Tangent In", k.tangentIn);
+                    k.roll = EditorGUILayout.Slider("Roll (°)", k.roll, -180f, 180f);
 
                     if (EditorGUI.EndChangeCheck())
                         _asset.MarkDirty();
@@ -262,10 +262,10 @@ namespace Creatush.TweenEffectsPro.Editor
 
                 // Catmull-Rom tangent direction
                 Vector3 tangentDir = (next - prev).normalized;
-                float   scale      = Vector3.Distance(prev, next) / 3f;
+                float scale = Vector3.Distance(prev, next) / 3f;
 
-                k.tangentOut =  tangentDir * scale;
-                k.tangentIn  = -tangentDir * scale;
+                k.tangentOut = tangentDir * scale;
+                k.tangentIn = -tangentDir * scale;
 
                 knots[i] = k;
             }
@@ -317,7 +317,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
         private void DrawKnotHandles(Matrix4x4 matrix)
         {
-            var   knots  = _asset.knots;
+            var knots = _asset.knots;
             float hSize;
 
             for (int i = 0; i < knots.Count; i++)
@@ -368,9 +368,9 @@ namespace Creatush.TweenEffectsPro.Editor
         private void DrawTangentHandle(int knotIndex, ref SplinePathSO.SplineKnot k,
                                         Matrix4x4 matrix, bool isTangentOut)
         {
-            Vector3 knotWorld   = matrix.MultiplyPoint3x4(k.point);
+            Vector3 knotWorld = matrix.MultiplyPoint3x4(k.point);
             Vector3 tangentLocal = isTangentOut ? k.tangentOut : k.tangentIn;
-            Vector3 handleWorld  = matrix.MultiplyPoint3x4(k.point + tangentLocal);
+            Vector3 handleWorld = matrix.MultiplyPoint3x4(k.point + tangentLocal);
 
             float hSize = HandleUtility.GetHandleSize(handleWorld) * TANGENT_HANDLE_SIZE;
 
@@ -392,7 +392,7 @@ namespace Creatush.TweenEffectsPro.Editor
                 Undo.RecordObject(_spline, isTangentOut ? "Move Tangent Out" : "Move Tangent In");
                 Vector3 newLocal = matrix.inverse.MultiplyPoint3x4(newHandleWorld) - k.point;
                 if (isTangentOut) k.tangentOut = newLocal;
-                else              k.tangentIn  = newLocal;
+                else k.tangentIn = newLocal;
                 _asset.MarkDirty();
                 EditorUtility.SetDirty(_spline);
             }
@@ -406,7 +406,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
             _headerStyle = new GUIStyle(EditorStyles.boldLabel)
             {
-                fontSize  = 11,
+                fontSize = 11,
                 fontStyle = FontStyle.Bold
             };
 

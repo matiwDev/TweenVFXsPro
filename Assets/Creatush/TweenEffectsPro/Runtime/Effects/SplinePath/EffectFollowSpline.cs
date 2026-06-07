@@ -77,9 +77,9 @@ namespace Creatush.TweenEffectsPro
 
         // ── Internal per-play state ───────────────────────────────────────────
 
-        private float      _val;
+        private float _val;
         private Quaternion _lastOrientation;
-        private Vector3    _startPos;
+        private Vector3 _startPos;
 
         // ── VFXBehaviour ──────────────────────────────────────────────────────
 
@@ -100,27 +100,27 @@ namespace Creatush.TweenEffectsPro
             SplinePathSO asset = targetPath.Asset;
             if (asset.overridePlayback)
             {
-                speedMode       = asset.defaultSpeedMode;
-                splineLoopMode  = asset.defaultLoopMode;
+                speedMode = asset.defaultSpeedMode;
+                splineLoopMode = asset.defaultLoopMode;
                 splineLoopCount = asset.defaultLoopCount;
-                startOffset     = asset.defaultStartOffset;
+                startOffset = asset.defaultStartOffset;
             }
 
             RectTransform rect = target.GetComponent<RectTransform>();
 
             // Cache start position for optional reset on complete
-            _startPos        = rect != null
+            _startPos = rect != null
                 ? (Vector3)rect.anchoredPosition
                 : target.localPosition;
 
             // Reset per-sequence state
-            _val             = startOffset;
+            _val = startOffset;
             _lastOrientation = target.rotation;
 
             // SetEase(Linear) — easing is applied inside RemapT to avoid compounding
             Tween tween = DOTween.To(
-                ()  => _val,
-                x   => ApplyPathSample(x, target, rect),
+                () => _val,
+                x => ApplyPathSample(x, target, rect),
                 1f,
                 duration
             ).SetEase(Ease.Linear);
@@ -138,7 +138,7 @@ namespace Creatush.TweenEffectsPro
                 if (resetOnComplete)
                 {
                     if (rect != null) rect.anchoredPosition = _startPos;
-                    else              target.localPosition  = _startPos;
+                    else target.localPosition = _startPos;
                 }
                 onPathComplete?.Invoke();
             });
@@ -157,11 +157,11 @@ namespace Creatush.TweenEffectsPro
         {
             _val = rawVal;
 
-            float   easedT = RemapT(rawVal);
-            Vector3 pos    = targetPath.GetPointOnPath(Mathf.Clamp01(easedT), speedMode);
+            float easedT = RemapT(rawVal);
+            Vector3 pos = targetPath.GetPointOnPath(Mathf.Clamp01(easedT), speedMode);
 
             if (rect != null) rect.anchoredPosition = pos;
-            else              target.localPosition   = pos;
+            else target.localPosition = pos;
 
             // Scale
             float s = scaleOverPath.Evaluate(rawVal);
@@ -178,7 +178,7 @@ namespace Creatush.TweenEffectsPro
                 Vector3 tangent = targetPath.GetTangentOnPath(Mathf.Clamp01(easedT), speedMode);
                 if (tangent.sqrMagnitude > 0.001f)
                 {
-                    float      roll    = targetPath.GetRollAtT(Mathf.Clamp01(easedT));
+                    float roll = targetPath.GetRollAtT(Mathf.Clamp01(easedT));
                     Quaternion pathRot;
 
                     if (orient2D)
@@ -222,10 +222,10 @@ namespace Creatush.TweenEffectsPro
 
             if (rawVal >= 1f) return 1f;
 
-            int   segCount   = Mathf.Max(1, targetPath.Asset.knots.Count - 1);
-            float segmentT   = rawVal * segCount;
-            int   segIdx     = Mathf.Clamp(Mathf.FloorToInt(segmentT), 0, segCount - 1);
-            float localT     = Mathf.Clamp01(segmentT - segIdx);
+            int segCount = Mathf.Max(1, targetPath.Asset.knots.Count - 1);
+            float segmentT = rawVal * segCount;
+            int segIdx = Mathf.Clamp(Mathf.FloorToInt(segmentT), 0, segCount - 1);
+            float localT = Mathf.Clamp01(segmentT - segIdx);
             float easedLocal = easeMode == EaseMode.Curve
                 ? easeCurve.Evaluate(localT)
                 : DOVirtual.EasedValue(0f, 1f, localT, ease);
@@ -233,8 +233,8 @@ namespace Creatush.TweenEffectsPro
             return Mathf.Clamp01((segIdx + easedLocal) / segCount);
         }
 
-        public SplinePath             TargetPath    => targetPath;
-        public SplinePathSO.SpeedMode SpeedMode     => speedMode;
-        public AnimationCurve         ScaleOverPath => scaleOverPath;
+        public SplinePath TargetPath => targetPath;
+        public SplinePathSO.SpeedMode SpeedMode => speedMode;
+        public AnimationCurve ScaleOverPath => scaleOverPath;
     }
 }

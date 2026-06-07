@@ -12,7 +12,7 @@ namespace Creatush.TweenEffectsPro
         [SerializeField] private Transform target;
 
         [SerializeField] private bool playOnEnable = false;
-        [SerializeField] private bool playOnStart  = false;
+        [SerializeField] private bool playOnStart = false;
 
         private void OnEnable()
         {

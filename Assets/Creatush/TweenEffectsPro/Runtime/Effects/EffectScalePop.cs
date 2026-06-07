@@ -27,9 +27,9 @@ namespace Creatush.TweenEffectsPro
         }
 
         [Header("Scale Settings")]
-        [SerializeField] private ScaleMode mode       = ScaleMode.ScaleIn;
-        [SerializeField] private Vector3   startScale = Vector3.zero;
-        [SerializeField] private Vector3   endScale   = Vector3.one;
+        [SerializeField] private ScaleMode mode = ScaleMode.ScaleIn;
+        [SerializeField] private Vector3 startScale = Vector3.zero;
+        [SerializeField] private Vector3 endScale = Vector3.one;
 
         [Header("Pop Settings")]
         [SerializeField, Range(1f, 3f),
@@ -49,8 +49,8 @@ namespace Creatush.TweenEffectsPro
             return mode switch
             {
                 ScaleMode.Pulse => duration * 2f,
-                ScaleMode.Pop   => duration + settleDuration,
-                _               => duration
+                ScaleMode.Pop => duration + settleDuration,
+                _ => duration
             };
         }
 
@@ -69,14 +69,14 @@ namespace Creatush.TweenEffectsPro
                     break;
 
                 case ScaleMode.Pulse:
-                    seq.Append(ApplyEase(target.DOScale(endScale,   duration)));
+                    seq.Append(ApplyEase(target.DOScale(endScale, duration)));
                     seq.Append(ApplyEase(target.DOScale(startScale, duration)));
                     break;
 
                 case ScaleMode.Pop:
                     // Phase 1: scale to overshoot peak using user ease
                     Vector3 peak = endScale * overshoot;
-                    seq.Append(ApplyEase(target.DOScale(peak,     duration)));
+                    seq.Append(ApplyEase(target.DOScale(peak, duration)));
                     // Phase 2: settle to end scale with OutBack for the springy tail
                     seq.Append(target.DOScale(endScale, settleDuration).SetEase(Ease.OutBack));
                     break;

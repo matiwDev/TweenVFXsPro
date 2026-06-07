@@ -13,8 +13,8 @@ namespace Creatush.TweenEffectsPro
         // ── Item setup ────────────────────────────────────────────────────────
 
         [Header("Item Setup")]
-        [SerializeField] private GameObject    itemPrefab;
-        [SerializeField, Min(1)] private int   itemCount   = 8;
+        [SerializeField] private GameObject itemPrefab;
+        [SerializeField, Min(1)] private int itemCount = 8;
         [SerializeField] private RectTransform spawnParent;
 
         // ── Sprite sheet (optional) ───────────────────────────────────────────
@@ -92,14 +92,14 @@ namespace Creatush.TweenEffectsPro
 
         private readonly List<GameObject> _pool = new List<GameObject>();
         private Coroutine _playCoroutine;
-        private int       _arrivedCount;
-        private int       _activeCount;
-        private Canvas    _canvas;
-        private Camera    _uiCamera;
+        private int _arrivedCount;
+        private int _activeCount;
+        private Canvas _canvas;
+        private Camera _uiCamera;
 
         // ── Lifecycle ─────────────────────────────────────────────────────────
 
-        private void Awake()     => BuildPool();
+        private void Awake() => BuildPool();
         private void OnDestroy() => ClearPool();
 
         // ── Public API ────────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ namespace Creatush.TweenEffectsPro
 
         private void ResolveCanvas()
         {
-            _canvas   = spawnParent.GetComponentInParent<Canvas>();
+            _canvas = spawnParent.GetComponentInParent<Canvas>();
             _uiCamera = _canvas != null &&
                         _canvas.renderMode != RenderMode.ScreenSpaceOverlay
                 ? _canvas.worldCamera : null;
@@ -179,12 +179,12 @@ namespace Creatush.TweenEffectsPro
         private IEnumerator PlayRoutine()
         {
             _arrivedCount = 0;
-            _activeCount  = itemCount;
+            _activeCount = itemCount;
 
             ResolveCanvas();
 
             Vector2 sourcePos = WorldToParentAnchored(transform.position);
-            Vector2 destPos   = WorldToParentAnchored(destination.position);
+            Vector2 destPos = WorldToParentAnchored(destination.position);
 
             for (int i = 0; i < itemCount; i++)
             {
@@ -192,14 +192,14 @@ namespace Creatush.TweenEffectsPro
                 if (item == null) { _activeCount--; continue; }
 
                 Vector2 randOffset = Random.insideUnitCircle * spawnRadius * spawnRandomness;
-                Vector2 spawnPos   = sourcePos + randOffset;
+                Vector2 spawnPos = sourcePos + randOffset;
 
                 var rt = item.GetComponent<RectTransform>();
                 if (rt != null)
                 {
                     rt.anchoredPosition = spawnPos;
-                    rt.localScale       = popInOnSpawn ? Vector3.zero : Vector3.one;
-                    rt.localRotation    = Quaternion.identity;
+                    rt.localScale = popInOnSpawn ? Vector3.zero : Vector3.one;
+                    rt.localRotation = Quaternion.identity;
                 }
 
                 item.SetActive(true);
@@ -219,8 +219,8 @@ namespace Creatush.TweenEffectsPro
         private void AnimateItem(GameObject item, int itemIndex,
                                   Vector2 spawnPos, Vector2 destPos, float itemArc)
         {
-            var       rt  = item.GetComponent<RectTransform>();
-            Transform t   = item.transform;
+            var rt = item.GetComponent<RectTransform>();
+            Transform t = item.transform;
 
             float totalDur = floatDuration + flyStagger * itemIndex + flyDuration;
 
@@ -231,14 +231,14 @@ namespace Creatush.TweenEffectsPro
                 seq.Append(t.DOScale(Vector3.one, popInDuration).SetEase(Ease.OutBack));
 
             // ── Float — sine-wave oscillation ─────────────────────────────────
-            float floatVal    = 0f;
+            float floatVal = 0f;
             float floatStartY = spawnPos.y;
 
             Tween floatTween = DOTween.To(
                 getter: () => floatVal,
                 setter: v =>
                 {
-                    floatVal      = v;
+                    floatVal = v;
                     float yOffset = Mathf.Sin(v * floatSpeed * Mathf.PI * 2f) * floatHeight;
                     if (rt != null)
                         rt.anchoredPosition = new Vector2(spawnPos.x, floatStartY + yOffset);
@@ -262,19 +262,19 @@ namespace Creatush.TweenEffectsPro
 
             // ── Fly — parabolic arc ───────────────────────────────────────────
             Vector2 floatPos = new Vector2(spawnPos.x, floatStartY);
-            float   flyVal   = 0f;
+            float flyVal = 0f;
 
             Tween flyTween = DOTween.To(
                 getter: () => flyVal,
                 setter: v =>
                 {
-                    flyVal           = v;
+                    flyVal = v;
                     Vector2 straight = Vector2.Lerp(floatPos, destPos, v);
-                    float   parabola = 4f * v * (1f - v) * itemArc;
-                    Vector2 pos      = straight + Vector2.up * parabola;
+                    float parabola = 4f * v * (1f - v) * itemArc;
+                    Vector2 pos = straight + Vector2.up * parabola;
 
                     if (rt != null) rt.anchoredPosition = pos;
-                    else            t.localPosition     = new Vector3(pos.x, pos.y, 0f);
+                    else t.localPosition = new Vector3(pos.x, pos.y, 0f);
                 },
                 endValue: 1f,
                 duration: flyDuration
@@ -304,16 +304,16 @@ namespace Creatush.TweenEffectsPro
             var image = item.GetComponentInChildren<Image>();
             if (image == null) return DOTween.Sequence();
 
-            int   frameCount  = spriteFrames.Length;
-            float frameDur    = 1f / Mathf.Max(1, spriteFrameRate);
-            int   totalFrames = Mathf.Max(1, Mathf.RoundToInt(totalDuration / frameDur));
-            int   frameIndex  = 0;
+            int frameCount = spriteFrames.Length;
+            float frameDur = 1f / Mathf.Max(1, spriteFrameRate);
+            int totalFrames = Mathf.Max(1, Mathf.RoundToInt(totalDuration / frameDur));
+            int frameIndex = 0;
 
             return DOTween.To(
                 getter: () => frameIndex,
                 setter: v =>
                 {
-                    frameIndex   = v;
+                    frameIndex = v;
                     image.sprite = spriteFrames[v % frameCount];
                 },
                 endValue: totalFrames,
@@ -324,10 +324,10 @@ namespace Creatush.TweenEffectsPro
         // ── Editor accessors ──────────────────────────────────────────────────
 
         public RectTransform Destination => destination;
-        public float         ArcHeight   => arcHeight;
-        public float         ArcVariance => arcVariance;
-        public float         FloatHeight => floatHeight;
-        public float         SpawnRadius => spawnRadius;
+        public float ArcHeight => arcHeight;
+        public float ArcVariance => arcVariance;
+        public float FloatHeight => floatHeight;
+        public float SpawnRadius => spawnRadius;
         public RectTransform SpawnParent => spawnParent;
 
         // ── Validation ────────────────────────────────────────────────────────

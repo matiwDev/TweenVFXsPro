@@ -18,7 +18,7 @@ namespace Creatush.TweenEffectsPro
         [Header("Axes")]
         [SerializeField] private bool punchPosition = false;
         [SerializeField] private bool punchRotation = false;
-        [SerializeField] private bool punchScale    = true;
+        [SerializeField] private bool punchScale = true;
 
         [Header("Position Punch")]
         [SerializeField, Tooltip("Direction and strength in local space.")]

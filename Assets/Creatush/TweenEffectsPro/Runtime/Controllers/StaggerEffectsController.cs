@@ -19,7 +19,7 @@ namespace Creatush.TweenEffectsPro
         [Header("Stagger")]
         [SerializeField, Min(0f)] private float staggerInterval = 0.08f;
         [SerializeField] private bool reverseOrder = false;
-        [SerializeField] private bool randomOrder  = false;
+        [SerializeField] private bool randomOrder = false;
 
         [Header("Events")]
         [SerializeField] private UnityEvent onAllComplete;

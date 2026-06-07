@@ -29,7 +29,7 @@ namespace Creatush.TweenEffectsPro.Editor
     public class SequenceControllerEditor : UnityEditor.Editor
     {
         // ── Serialized properties ─────────────────────────────────────────────
-        private ReorderableList    _list;
+        private ReorderableList _list;
         private SerializedProperty _sequenceSteps;
         private SerializedProperty _targetOverride;
         private SerializedProperty _autoPlay;
@@ -49,45 +49,45 @@ namespace Creatush.TweenEffectsPro.Editor
         private bool _timelineFoldout = true;
 
         // ── Timeline constants ────────────────────────────────────────────────
-        private const float LABEL_W  = 110f;
-        private const float ROW_H    = 18f;
-        private const float ROW_GAP  = 2f;
-        private const float RULER_H  = 20f;
+        private const float LABEL_W = 110f;
+        private const float ROW_H = 18f;
+        private const float ROW_GAP = 2f;
+        private const float RULER_H = 20f;
         private const float MIN_SECS = 0.1f;
 
-        private static readonly Color C_BG      = new Color(0.15f, 0.15f, 0.15f, 1f);
-        private static readonly Color C_ALT     = new Color(0.17f, 0.17f, 0.17f, 1f);
-        private static readonly Color C_BAR     = new Color(0.27f, 0.60f, 0.95f, 0.90f);
-        private static readonly Color C_JOIN    = new Color(0.35f, 0.85f, 0.55f, 0.90f);
-        private static readonly Color C_DELAY   = new Color(1.00f, 0.85f, 0.30f, 0.55f);
-        private static readonly Color C_RULER   = new Color(0.10f, 0.10f, 0.10f, 1f);
+        private static readonly Color C_BG = new Color(0.15f, 0.15f, 0.15f, 1f);
+        private static readonly Color C_ALT = new Color(0.17f, 0.17f, 0.17f, 1f);
+        private static readonly Color C_BAR = new Color(0.27f, 0.60f, 0.95f, 0.90f);
+        private static readonly Color C_JOIN = new Color(0.35f, 0.85f, 0.55f, 0.90f);
+        private static readonly Color C_DELAY = new Color(1.00f, 0.85f, 0.30f, 0.55f);
+        private static readonly Color C_RULER = new Color(0.10f, 0.10f, 0.10f, 1f);
         private static readonly Color C_TICK_LB = new Color(0.55f, 0.55f, 0.55f, 1f);
-        private static readonly Color C_GRID    = new Color(1.00f, 1.00f, 1.00f, 0.06f);
+        private static readonly Color C_GRID = new Color(1.00f, 1.00f, 1.00f, 0.06f);
 
         // ── Init ──────────────────────────────────────────────────────────────
         private void OnEnable()
         {
             if (target == null || serializedObject == null) return;
 
-            _sequenceSteps  = serializedObject.FindProperty("sequenceSteps");
+            _sequenceSteps = serializedObject.FindProperty("sequenceSteps");
             _targetOverride = serializedObject.FindProperty("targetOverride");
-            _autoPlay       = serializedObject.FindProperty("autoPlay");
+            _autoPlay = serializedObject.FindProperty("autoPlay");
 
             if (_autoPlay != null)
             {
-                _onStart      = _autoPlay.FindPropertyRelative("onStart");
-                _onEnable     = _autoPlay.FindPropertyRelative("onEnable");
-                _loop         = _autoPlay.FindPropertyRelative("loop");
-                _loopCount    = _autoPlay.FindPropertyRelative("loopCount");
+                _onStart = _autoPlay.FindPropertyRelative("onStart");
+                _onEnable = _autoPlay.FindPropertyRelative("onEnable");
+                _loop = _autoPlay.FindPropertyRelative("loop");
+                _loopCount = _autoPlay.FindPropertyRelative("loopCount");
                 _loopInterval = _autoPlay.FindPropertyRelative("loopInterval");
             }
 
             _outAnim = serializedObject.FindProperty("outAnim");
             if (_outAnim != null)
             {
-                _outEnabled    = _outAnim.FindPropertyRelative("enabled");
-                _outReverse    = _outAnim.FindPropertyRelative("reverse");
-                _outSpeed      = _outAnim.FindPropertyRelative("speed");
+                _outEnabled = _outAnim.FindPropertyRelative("enabled");
+                _outReverse = _outAnim.FindPropertyRelative("reverse");
+                _outSpeed = _outAnim.FindPropertyRelative("speed");
                 _outOnComplete = _outAnim.FindPropertyRelative("OnOutComplete");
             }
 
@@ -169,11 +169,11 @@ namespace Creatush.TweenEffectsPro.Editor
             {
                 EditorGUILayout.Space(6);
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button("▶  Play",    GUILayout.Height(26)))
+                if (GUILayout.Button("▶  Play", GUILayout.Height(26)))
                     ((SequenceEffectsController)target).Play();
                 if (GUILayout.Button("◀  Reverse", GUILayout.Height(26)))
                     ((SequenceEffectsController)target).PlayReverse();
-                if (GUILayout.Button("■  Stop",    GUILayout.Height(26)))
+                if (GUILayout.Button("■  Stop", GUILayout.Height(26)))
                     ((SequenceEffectsController)target).Stop();
                 EditorGUILayout.EndHorizontal();
             }
@@ -313,7 +313,7 @@ namespace Creatush.TweenEffectsPro.Editor
             }
 
             float totalDur = Mathf.Max(MIN_SECS, CalcTotalDuration(steps));
-            float panelH   = steps.Count * (ROW_H + ROW_GAP) + RULER_H + 2f;
+            float panelH = steps.Count * (ROW_H + ROW_GAP) + RULER_H + 2f;
 
             // GetRect must always execute — never skip it.
             Rect panel = GUILayoutUtility.GetRect(
@@ -330,7 +330,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
                 for (int i = 0; i < steps.Count; i++)
                 {
-                    var   s    = steps[i];
+                    var s = steps[i];
                     float rowY = panel.y + i * (ROW_H + ROW_GAP);
 
                     // Row background
@@ -346,7 +346,7 @@ namespace Creatush.TweenEffectsPro.Editor
                     // Delay stripe — drawn from step start minus delay to step start
                     if (s.delay > 0f)
                     {
-                        float animStart  = trackX + (s.startTime          / totalDur) * trackW;
+                        float animStart = trackX + (s.startTime / totalDur) * trackW;
                         float delayStart = trackX + ((s.startTime - s.delay) / totalDur) * trackW;
                         delayStart = Mathf.Max(trackX, delayStart);
                         EditorGUI.DrawRect(
@@ -360,7 +360,7 @@ namespace Creatush.TweenEffectsPro.Editor
                     {
                         float bx = trackX + (s.startTime / totalDur) * trackW;
                         float bw = Mathf.Max(2f, (s.duration / totalDur) * trackW);
-                        Rect  br = new Rect(bx, rowY + 2f, bw, ROW_H - 4f);
+                        Rect br = new Rect(bx, rowY + 2f, bw, ROW_H - 4f);
                         EditorGUI.DrawRect(br, s.isJoined ? C_JOIN : C_BAR);
 
                         if (bw > 24f)
@@ -369,9 +369,9 @@ namespace Creatush.TweenEffectsPro.Editor
                                 $"{s.duration:0.##}s",
                                 new GUIStyle(EditorStyles.miniLabel)
                                 {
-                                    clipping  = TextClipping.Clip,
+                                    clipping = TextClipping.Clip,
                                     fontStyle = FontStyle.Bold,
-                                    normal    = { textColor = Color.white }
+                                    normal = { textColor = Color.white }
                                 });
                     }
                 }
@@ -382,8 +382,8 @@ namespace Creatush.TweenEffectsPro.Editor
             // Legend — layout calls, always execute.
             EditorGUILayout.Space(4);
             EditorGUILayout.BeginHorizontal();
-            DrawLegendSwatch(C_BAR,   "Sequential");
-            DrawLegendSwatch(C_JOIN,  "Joined");
+            DrawLegendSwatch(C_BAR, "Sequential");
+            DrawLegendSwatch(C_JOIN, "Joined");
             DrawLegendSwatch(C_DELAY, "Delay");
             EditorGUILayout.EndHorizontal();
 
@@ -395,15 +395,15 @@ namespace Creatush.TweenEffectsPro.Editor
         private struct TimelineStep
         {
             public string label;
-            public float  startTime; // when the animation bar begins (after delay)
-            public float  duration;
-            public float  delay;
-            public bool   isJoined;
+            public float startTime; // when the animation bar begins (after delay)
+            public float duration;
+            public float delay;
+            public bool isJoined;
         }
 
         private List<TimelineStep> BuildTimelineSteps()
         {
-            var   result = new List<TimelineStep>();
+            var result = new List<TimelineStep>();
             float cursor = 0f;
 
             var durField = typeof(VFXBehaviour).GetField(
@@ -413,15 +413,15 @@ namespace Creatush.TweenEffectsPro.Editor
 
             for (int i = 0; i < _sequenceSteps.arraySize; i++)
             {
-                var el        = _sequenceSteps.GetArrayElementAtIndex(i);
-                var bhvProp   = el.FindPropertyRelative("behavior");
+                var el = _sequenceSteps.GetArrayElementAtIndex(i);
+                var bhvProp = el.FindPropertyRelative("behavior");
                 var delayProp = el.FindPropertyRelative("delay");
-                var joinProp  = el.FindPropertyRelative("joinPrevious");
+                var joinProp = el.FindPropertyRelative("joinPrevious");
 
                 float delay = delayProp != null ? delayProp.floatValue : 0f;
-                bool  join  = joinProp  != null ? joinProp.boolValue   : false;
+                bool join = joinProp != null ? joinProp.boolValue : false;
 
-                float  dur = 0f;
+                float dur = 0f;
                 string lbl = bhvProp?.objectReferenceValue != null
                     ? bhvProp.objectReferenceValue.GetType().Name
                     : "(empty)";
@@ -437,17 +437,17 @@ namespace Creatush.TweenEffectsPro.Editor
                         : cursor + delay;
                 else
                 {
-                    start  = cursor + delay;  // delay pushes cursor, start is after it
+                    start = cursor + delay;  // delay pushes cursor, start is after it
                     cursor = start + dur;
                 }
 
                 result.Add(new TimelineStep
                 {
-                    label     = lbl,
+                    label = lbl,
                     startTime = start,
-                    duration  = dur,
-                    delay     = delay,
-                    isJoined  = join
+                    duration = dur,
+                    delay = delay,
+                    isJoined = join
                 });
             }
 
@@ -468,7 +468,7 @@ namespace Creatush.TweenEffectsPro.Editor
             for (int t = 0; t <= ticks; t++)
             {
                 float frac = (float)t / ticks;
-                float tx   = x + frac * w;
+                float tx = x + frac * w;
                 float secs = frac * totalDur;
                 EditorGUI.DrawRect(new Rect(tx, y, 1f, 6f), C_GRID);
                 GUI.Label(
@@ -496,11 +496,11 @@ namespace Creatush.TweenEffectsPro.Editor
             var style = new GUIStyle(EditorStyles.miniLabel)
             {
                 fontStyle = FontStyle.Bold,
-                normal    = { textColor = Color.gray }
+                normal = { textColor = Color.gray }
             };
             GUILayout.Label("EFFECT BEHAVIOR", style, GUILayout.Width(w * 0.55f));
-            GUILayout.Label("DELAY (S)",        style, GUILayout.Width(w * 0.20f));
-            GUILayout.Label("JOIN",             style, GUILayout.Width(w * 0.15f));
+            GUILayout.Label("DELAY (S)", style, GUILayout.Width(w * 0.20f));
+            GUILayout.Label("JOIN", style, GUILayout.Width(w * 0.15f));
             EditorGUILayout.EndHorizontal();
         }
     }

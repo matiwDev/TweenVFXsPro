@@ -24,7 +24,7 @@ namespace Creatush.TweenEffectsPro
                 if (pathAsset != null) return pathAsset;
                 if (_localPath == null)
                 {
-                    _localPath      = ScriptableObject.CreateInstance<SplinePathSO>();
+                    _localPath = ScriptableObject.CreateInstance<SplinePathSO>();
                     _localPath.name = "LocalPath";
                 }
                 return _localPath;
@@ -32,14 +32,14 @@ namespace Creatush.TweenEffectsPro
         }
 
         // Passthrough convenience properties used by the editor
-        public Color pathColor  { get => Asset.pathColor;  set => Asset.pathColor  = value; }
-        public float pointSize  { get => Asset.pointSize;  set => Asset.pointSize  = value; }
+        public Color pathColor { get => Asset.pathColor; set => Asset.pathColor = value; }
+        public float pointSize { get => Asset.pointSize; set => Asset.pointSize = value; }
 
         public System.Collections.Generic.List<SplinePathSO.SplineKnot> knots => Asset.knots;
 
-        public void    BakePath()    => Asset.BakePath();
-        public float   TotalLength   => Asset.TotalLength;
-        public float   GetRollAtT(float t) => Asset.GetRollAtT(t);
+        public void BakePath() => Asset.BakePath();
+        public float TotalLength => Asset.TotalLength;
+        public float GetRollAtT(float t) => Asset.GetRollAtT(t);
 
         public Vector3 GetPointOnPath(float t,
             SplinePathSO.SpeedMode mode = SplinePathSO.SpeedMode.ConstantAcrossPath)

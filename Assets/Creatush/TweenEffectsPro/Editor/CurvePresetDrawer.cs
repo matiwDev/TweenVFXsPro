@@ -7,9 +7,9 @@ namespace Creatush.TweenEffectsPro.Editor
     [CustomPropertyDrawer(typeof(CurvePresetAttribute))]
     public class CurvePresetDrawer : PropertyDrawer
     {
-        private static readonly string[]  _names;
-        private static          int       _selected = 0;
-        private static          GUIStyle  _labelStyle;  // cached — never allocate in OnGUI
+        private static readonly string[] _names;
+        private static int _selected = 0;
+        private static GUIStyle _labelStyle;  // cached — never allocate in OnGUI
 
         private static GUIStyle LabelStyle
         {
@@ -45,15 +45,15 @@ namespace Creatush.TweenEffectsPro.Editor
 
             EditorGUI.BeginProperty(position, label, property);
 
-            float lineH  = EditorGUIUtility.singleLineHeight;
-            float gap    = EditorGUIUtility.standardVerticalSpacing;
+            float lineH = EditorGUIUtility.singleLineHeight;
+            float gap = EditorGUIUtility.standardVerticalSpacing;
 
             // ── Preset picker row ─────────────────────────────────────────────
             Rect pickerRect = new Rect(position.x, position.y, position.width, lineH);
 
-            float labelW   = EditorGUIUtility.labelWidth;
-            float buttonW  = 60f;
-            float popupW   = pickerRect.width - labelW - buttonW - gap;
+            float labelW = EditorGUIUtility.labelWidth;
+            float buttonW = 60f;
+            float popupW = pickerRect.width - labelW - buttonW - gap;
 
             EditorGUI.LabelField(
                 new Rect(pickerRect.x, pickerRect.y, labelW, lineH),

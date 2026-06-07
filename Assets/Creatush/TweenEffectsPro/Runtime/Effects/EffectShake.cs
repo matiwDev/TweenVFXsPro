@@ -52,9 +52,9 @@ namespace Creatush.TweenEffectsPro
         {
             if (target == null) return null;
 
-            Vector3    originScale = target.localScale;
-            Quaternion originRot   = target.localRotation;
-            Vector3    originPos   = target.localPosition;
+            Vector3 originScale = target.localScale;
+            Quaternion originRot = target.localRotation;
+            Vector3 originPos = target.localPosition;
 
             Sequence seq = DOTween.Sequence();
 
@@ -75,7 +75,7 @@ namespace Creatush.TweenEffectsPro
             {
                 target.localPosition = originPos;
                 target.localRotation = originRot;
-                target.localScale    = originScale;
+                target.localScale = originScale;
             });
 
             return FinaliseSequence(seq);

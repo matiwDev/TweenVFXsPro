@@ -10,12 +10,12 @@ namespace Creatush.TweenEffectsPro
     {
         [Header("Fill Settings")]
         [SerializeField, Range(0f, 1f)] private float startFill = 0f;
-        [SerializeField, Range(0f, 1f)] private float endFill   = 1f;
+        [SerializeField, Range(0f, 1f)] private float endFill = 1f;
 
 
         public override float GetDuration() { return duration; }
 
-                public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(int index, int totalCount, Transform target)
         {
             if (target == null) return null;
 

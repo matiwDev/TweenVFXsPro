@@ -1,0 +1,31 @@
+{
+  "name": "com.creatush.tweeneffects-pro",
+  "version": "1.1.0",
+  "displayName": "TweenEffects Pro",
+  "description": "Modular DOTween animation system for Unity. Compose effects via controllers, animate sprite sheets, collect rewards with pooled fly effects, follow spline paths, and preview arcs in the Scene View — all without the Animator.",
+  "unity": "2022.3",
+  "unityRelease": "0f1",
+  "documentationUrl": "https://creatush.com/tweeneffects-pro/docs",
+  "changelogUrl": "https://creatush.com/tweeneffects-pro/changelog",
+  "licensesUrl": "https://creatush.com/tweeneffects-pro/license",
+  "dependencies": {
+    "com.unity.ugui": "1.0.0"
+  },
+  "keywords": [
+    "animation",
+    "tween",
+    "dotween",
+    "ui",
+    "effects",
+    "modular",
+    "spline",
+    "sprite",
+    "reward"
+  ],
+  "author": {
+    "name": "Creatush",
+    "email": "support@creatush.com",
+    "url": "https://creatush.com"
+  },
+  "type": "tool"
+}

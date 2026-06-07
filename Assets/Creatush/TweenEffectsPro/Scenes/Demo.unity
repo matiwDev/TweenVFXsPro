@@ -373,8 +373,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.91997, y: -215}
-  m_SizeDelta: {x: 447.84, y: 163.06}
+  m_AnchoredPosition: {x: 0.000043452, y: -0.000030518}
+  m_SizeDelta: {x: 447.84, y: 220.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &53400156
 MonoBehaviour:
@@ -432,6 +432,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 53400154}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &53400157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,9 +464,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
+  m_Sprite: {fileID: -1294776362, guid: fb7a70a2ef7e54f0d9f4fc5f517b0462, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -2932,7 +2944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c48c429839e93411dbbc98c51cb71cd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 0.8
+  duration: 0.5
   easeMode: 0
   ease: 6
   easeCurve:
@@ -2962,8 +2974,8 @@ MonoBehaviour:
   loop: 1
   loopCount: -1
   loopInterval: 3
-  bounceHeight: 50
-  squashStrength: 0.6
+  bounceHeight: 100
+  squashStrength: 0.8
   bounciness: 1
 --- !u!1 &1650918813
 GameObject:
@@ -3620,7 +3632,19 @@ MonoBehaviour:
   flyStagger: 0.08
   onAllArrived:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 53400154}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   onItemArrived:
     m_PersistentCalls:
       m_Calls: []

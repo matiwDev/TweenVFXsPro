@@ -16,7 +16,7 @@ namespace Creatush.TweenEffectsPro
 
         public override float GetDuration() { return duration; }
 
-                public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(int index, int totalCount, Transform target)
         {
             if (target == null) return null;
 
