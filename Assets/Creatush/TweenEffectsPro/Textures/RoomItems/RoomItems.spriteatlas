@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RoomItems
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 0
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: 98b192c4b96234de4ba18a807e69d74a, type: 3}
+    - {fileID: 2800000, guid: 184faf89f050a4f04a870a2afccad72b, type: 3}
+    - {fileID: 2800000, guid: d6799ac70ddee4b5f9c6859ca0e33bf3, type: 3}
+    - {fileID: 2800000, guid: 0647c08d07ec449d69970f09f9528c75, type: 3}
+    - {fileID: 2800000, guid: 68c211dc507934142af81de2d3db8cdc, type: 3}
+    - {fileID: 2800000, guid: 1324356eeef3b4c1e9058c76bc4c251b, type: 3}
+    - {fileID: 2800000, guid: 64f95ae7e7dd54a9aa1e7b9b229b13b5, type: 3}
+    - {fileID: 2800000, guid: 5e2a94e738e3045b88aeca8e04b7f690, type: 3}
+    - {fileID: 2800000, guid: a996d6860d1784459a8ff2df6758ba04, type: 3}
+    - {fileID: 2800000, guid: e3e654263716d417aac14f8091c82b42, type: 3}
+    - {fileID: 2800000, guid: c4d7b941a46874496866cf3ed300033f, type: 3}
+    - {fileID: 2800000, guid: ee9003c0b81294a8aa818c2cab4aa95e, type: 3}
+    - {fileID: 2800000, guid: e3836d8e277d247d3bb1968d92a33d56, type: 3}
+    - {fileID: 2800000, guid: a1aa9e55ebecf48ebb352e92d175c992, type: 3}
+    - {fileID: 2800000, guid: 8cc87023bfec94f2eae3ea96557e5c21, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: ee9003c0b81294a8aa818c2cab4aa95e, type: 3}
+  - {fileID: 21300000, guid: c4d7b941a46874496866cf3ed300033f, type: 3}
+  - {fileID: 21300000, guid: 8cc87023bfec94f2eae3ea96557e5c21, type: 3}
+  - {fileID: 21300000, guid: 98b192c4b96234de4ba18a807e69d74a, type: 3}
+  - {fileID: 21300000, guid: a1aa9e55ebecf48ebb352e92d175c992, type: 3}
+  - {fileID: 21300000, guid: e3e654263716d417aac14f8091c82b42, type: 3}
+  - {fileID: 21300000, guid: a996d6860d1784459a8ff2df6758ba04, type: 3}
+  - {fileID: 21300000, guid: d6799ac70ddee4b5f9c6859ca0e33bf3, type: 3}
+  - {fileID: 21300000, guid: 5e2a94e738e3045b88aeca8e04b7f690, type: 3}
+  - {fileID: 21300000, guid: 64f95ae7e7dd54a9aa1e7b9b229b13b5, type: 3}
+  - {fileID: 21300000, guid: 184faf89f050a4f04a870a2afccad72b, type: 3}
+  - {fileID: 21300000, guid: 68c211dc507934142af81de2d3db8cdc, type: 3}
+  - {fileID: 21300000, guid: 0647c08d07ec449d69970f09f9528c75, type: 3}
+  - {fileID: 21300000, guid: 1324356eeef3b4c1e9058c76bc4c251b, type: 3}
+  - {fileID: 21300000, guid: e3836d8e277d247d3bb1968d92a33d56, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Layer 37 (1)
+  - Layer 37 (1) (1)
+  - Room
+  - Layer 19
+  - Layer 37
+  - Layer 32
+  - Layer 27 (2)
+  - Layer 21
+  - Layer 27 (1)
+  - Layer 23
+  - Layer 20
+  - Layer 23 (1)
+  - Layer 22
+  - Layer 23 (2)
+  - Layer 37 (3)
+  m_RenderDataMap: {}
+  m_Tag: RoomItems
+  m_IsVariant: 0

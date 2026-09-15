@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6ec24deb0a63e4d4b8bf29d47ebd6614, type: 3}
-  m_Name: PresetExample
+  m_Name: PresetExample_ColorTint
   m_EditorClassIdentifier: 
   effect:
     rid: 8346858481088725011
@@ -47,5 +47,5 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-        startColor: {r: 1, g: 1, b: 1, a: 1}
+        startColor: {r: 0, g: 0.1882353, b: 0.8, a: 1}
         endColor: {r: 1, g: 0.3, b: 0.3, a: 1}
