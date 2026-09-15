@@ -11,10 +11,10 @@ namespace Creatush.TweenEffectsPro
     ///   Pop       — ScaleIn with an overshoot bounce for a springy feel.
     ///
     /// The Mode field selects the pattern. All three share the same
-    /// start/end scale fields and respect the base ease and loop settings.
+    /// start/end scale fields and respect the base ease settings.
     /// </summary>
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Scale Pop")]
-    public class EffectScalePop : VFXBehaviour
+    [System.Serializable]
+    public class EffectScalePop : EffectDefinition
     {
         public enum ScaleMode
         {
@@ -42,8 +42,6 @@ namespace Creatush.TweenEffectsPro
                  "Only used in Pop mode.")]
         private float settleDuration = 0.15f;
 
-        // ── VFXBehaviour ──────────────────────────────────────────────────────
-
         public override float GetDuration()
         {
             return mode switch
@@ -54,8 +52,9 @@ namespace Creatush.TweenEffectsPro
             };
         }
 
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             target.localScale = startScale;
@@ -74,15 +73,13 @@ namespace Creatush.TweenEffectsPro
                     break;
 
                 case ScaleMode.Pop:
-                    // Phase 1: scale to overshoot peak using user ease
                     Vector3 peak = endScale * overshoot;
                     seq.Append(ApplyEase(target.DOScale(peak, duration)));
-                    // Phase 2: settle to end scale with OutBack for the springy tail
                     seq.Append(target.DOScale(endScale, settleDuration).SetEase(Ease.OutBack));
                     break;
             }
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

@@ -8,12 +8,12 @@ namespace Creatush.TweenEffectsPro
     /// Supports constant-speed arc-length remapping, orient-to-path, scale-over-path,
     /// and PingPong / Loop playback — all without the Animator.
     ///
-    /// Loop note: this effect owns its loop behaviour via splineLoopMode rather than
-    /// the base loop fields, because PingPong maps to DOTween Yoyo which the base
-    /// ApplyLoop does not support. The base loop fields are intentionally unused here.
+    /// Loop note: this effect's own splineLoopMode/splineLoopCount drive path
+    /// PingPong/repeat playback directly on its tween (DOTween Yoyo) — a
+    /// distinct concept from the owning MasterSequenceController's whole-sequence Loop.
     /// </summary>
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Follow Spline")]
-    public class EffectFollowSpline : VFXBehaviour
+    [System.Serializable]
+    public class EffectFollowSpline : EffectDefinition
     {
         // ── Path ──────────────────────────────────────────────────────────────
 
@@ -81,19 +81,22 @@ namespace Creatush.TweenEffectsPro
         private Quaternion _lastOrientation;
         private Vector3 _startPos;
 
-        // ── VFXBehaviour ──────────────────────────────────────────────────────
+        // ── EffectDefinition ──────────────────────────────────────────────────
 
-        public override float GetDuration() { return duration; }
+        public override float GetDuration() => duration;
 
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             Sequence seq = DOTween.Sequence();
 
             if (targetPath == null)
             {
-                Debug.LogWarning("[EffectFollowSpline] No SplinePath assigned.", this);
-                return FinaliseSequence(seq);
+                Debug.LogWarning("[EffectFollowSpline] No SplinePath assigned.", target);
+                return FinaliseSequence(seq, ctx.owner);
             }
+            if (target == null)
+                return FinaliseSequence(seq, ctx.owner);
 
             targetPath.BakePath();
 
@@ -147,7 +150,8 @@ namespace Creatush.TweenEffectsPro
 
             // Use KillOnDestroy rather than KillOnDisable — prevents the sequence
             // being killed unexpectedly when the source GO is disabled mid-animation.
-            seq.SetLink(gameObject, LinkBehaviour.KillOnDestroy);
+            if (ctx.owner != null)
+                seq.SetLink(ctx.owner, LinkBehaviour.KillOnDestroy);
             return seq;
         }
 
@@ -163,13 +167,8 @@ namespace Creatush.TweenEffectsPro
             if (rect != null) rect.anchoredPosition = pos;
             else target.localPosition = pos;
 
-            // Scale
+            // Scale — uniform multiplier relative to unit scale
             float s = scaleOverPath.Evaluate(rawVal);
-            target.localScale = new Vector3(
-                target.localScale.x * s / Mathf.Max(0.001f, target.localScale.x) * target.localScale.x,
-                target.localScale.y * s / Mathf.Max(0.001f, target.localScale.y) * target.localScale.y,
-                target.localScale.z * s / Mathf.Max(0.001f, target.localScale.z) * target.localScale.z);
-            // Simplified: uniform scale multiplier relative to unit scale
             target.localScale = Vector3.one * s;
 
             // Orientation

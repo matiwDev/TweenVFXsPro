@@ -2,7 +2,8 @@
     "name": "Creatush.TweenEffectsPro.Runtime",
     "rootNamespace": "Creatush.TweenEffectsPro",
     "references": [
-        "DOTween.Modules"
+        "DOTween.Modules",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

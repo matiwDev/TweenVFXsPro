@@ -15,8 +15,8 @@ namespace Creatush.TweenEffectsPro
     /// if the target has a RectTransform, anchoredPosition is used (UI);
     /// otherwise localPosition is used (world-space objects).
     /// </summary>
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Move Transform")]
-    public class EffectMoveTransform : VFXBehaviour
+    [System.Serializable]
+    public class EffectMoveTransform : EffectDefinition
     {
         [Header("Waypoints")]
         [SerializeField,
@@ -29,20 +29,19 @@ namespace Creatush.TweenEffectsPro
                  "Drag any RectTransform in the scene — its anchored position is used as the destination.")]
         private RectTransform destination;
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
-            if (target == null) return null;
+            if (ctx.target == null) return null;
 
             if (origin == null || destination == null)
             {
-                Debug.LogWarning($"[EffectMoveTransform] Origin or Destination is not assigned on '{name}'.", this);
-                return FinaliseSequence(DOTween.Sequence());
+                Debug.LogWarning($"[EffectMoveTransform] Origin or Destination is not assigned on '{ctx.target.name}'.", ctx.target);
+                return FinaliseSequence(DOTween.Sequence(), ctx.owner);
             }
 
-            var targetRect = target.GetComponent<RectTransform>();
+            var targetRect = ctx.target.GetComponent<RectTransform>();
 
             if (targetRect != null)
             {
@@ -52,17 +51,17 @@ namespace Creatush.TweenEffectsPro
                 Sequence seq = DOTween.Sequence();
                 seq.Append(ApplyEase(
                     targetRect.DOAnchorPos(destination.anchoredPosition, duration)));
-                return FinaliseSequence(seq);
+                return FinaliseSequence(seq, ctx.owner);
             }
             else
             {
                 // World-space path: drive localPosition
-                target.localPosition = origin.position;
+                ctx.target.localPosition = origin.position;
 
                 Sequence seq = DOTween.Sequence();
                 seq.Append(ApplyEase(
-                    target.DOLocalMove(destination.position, duration)));
-                return FinaliseSequence(seq);
+                    ctx.target.DOLocalMove(destination.position, duration)));
+                return FinaliseSequence(seq, ctx.owner);
             }
         }
     }

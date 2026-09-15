@@ -3,8 +3,8 @@ using DG.Tweening;
 
 namespace Creatush.TweenEffectsPro
 {
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Rotate")]
-    public class EffectRotate : VFXBehaviour
+    [System.Serializable]
+    public class EffectRotate : EffectDefinition
     {
         [Header("Rotate Settings")]
         [SerializeField, Tooltip("Local-space Euler angles the target snaps to at the start.")]
@@ -19,20 +19,19 @@ namespace Creatush.TweenEffectsPro
             "LocalAxisAdd: adds the end value to the current rotation each loop.")]
         private RotateMode rotateMode = RotateMode.FastBeyond360;
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
-            if (target == null) return null;
+            if (ctx.target == null) return null;
 
-            target.localEulerAngles = startRotation;
+            ctx.target.localEulerAngles = startRotation;
 
             Sequence seq = DOTween.Sequence();
             seq.Append(ApplyEase(
-                target.DOLocalRotate(endRotation, duration, rotateMode)));
+                ctx.target.DOLocalRotate(endRotation, duration, rotateMode)));
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

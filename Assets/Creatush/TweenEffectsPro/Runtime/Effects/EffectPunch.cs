@@ -12,8 +12,8 @@ namespace Creatush.TweenEffectsPro
     /// oscillation and produce unpredictable results. Shape the feel via
     /// Vibrato and Elasticity instead.
     /// </summary>
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Punch")]
-    public class EffectPunch : VFXBehaviour
+    [System.Serializable]
+    public class EffectPunch : EffectDefinition
     {
         [Header("Axes")]
         [SerializeField] private bool punchPosition = false;
@@ -40,12 +40,11 @@ namespace Creatush.TweenEffectsPro
          Tooltip("0 = no bounce back, 1 = full elastic return.")]
         private float elasticity = 0.5f;
 
-        // ── VFXBehaviour ──────────────────────────────────────────────────────
-
         public override float GetDuration() => duration;
 
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             Sequence seq = DOTween.Sequence();
@@ -64,7 +63,7 @@ namespace Creatush.TweenEffectsPro
             if (!punchPosition && !punchRotation && !punchScale)
                 seq.AppendInterval(duration);
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

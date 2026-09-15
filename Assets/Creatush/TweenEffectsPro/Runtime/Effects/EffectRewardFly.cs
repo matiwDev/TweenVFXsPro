@@ -1,14 +1,37 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
-using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 
 namespace Creatush.TweenEffectsPro
 {
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Reward Fly")]
-    public class EffectRewardFly : MonoBehaviour
+    /// <summary>
+    /// Spawns a burst of pooled items that pop in, float, then fly along a
+    /// parabolic arc to a destination — the classic "coins fly to the wallet"
+    /// reward animation.
+    ///
+    /// Unlike most effects this one manages its own pool of spawned
+    /// GameObjects rather than animating a single target directly — ctx.target's
+    /// position is used as the spawn source, so it still slots into an
+    /// MasterSequenceController step like any other effect (Single mode, with the
+    /// source object as the target).
+    ///
+    /// The old MonoBehaviour version drove spawning with a coroutine
+    /// (WaitForSeconds between each item). Here every item's timing is known
+    /// up front from serialized fields, so the whole burst is built as one
+    /// declarative Sequence — each item's sequence is inserted at
+    /// i * spawnStagger, with its spawn/activate step as its own leading
+    /// callback — which plays, reverses, and reports GetDuration() exactly
+    /// like every other effect, and finally fits into the master timeline
+    /// of an MasterSequenceController.
+    ///
+    /// Implements IEffectLifecycle to release its pooled instances when the
+    /// owning MasterSequenceController is destroyed — the same cleanup the old
+    /// MonoBehaviour version did in OnDestroy().
+    /// </summary>
+    [System.Serializable]
+    public class EffectRewardFly : EffectDefinition, IEffectLifecycle
     {
         // ── Item setup ────────────────────────────────────────────────────────
 
@@ -88,143 +111,90 @@ namespace Creatush.TweenEffectsPro
         [SerializeField] private UnityEvent onAllArrived;
         [SerializeField] private UnityEvent onItemArrived;
 
-        // ── Private state ─────────────────────────────────────────────────────
+        // ── Pool state — persists across plays, released via IEffectLifecycle ──
 
         private readonly List<GameObject> _pool = new List<GameObject>();
-        private Coroutine _playCoroutine;
         private int _arrivedCount;
         private int _activeCount;
         private Canvas _canvas;
         private Camera _uiCamera;
 
-        // ── Lifecycle ─────────────────────────────────────────────────────────
+        // ── EffectDefinition ─────────────────────────────────────────────────
 
-        private void Awake() => BuildPool();
-        private void OnDestroy() => ClearPool();
-
-        // ── Public API ────────────────────────────────────────────────────────
-
-        public void Play()
+        public override float GetDuration()
         {
-            if (!Validate()) return;
-            if (_playCoroutine != null) StopCoroutine(_playCoroutine);
-            _playCoroutine = StartCoroutine(PlayRoutine());
+            float lastIndex = Mathf.Max(0, itemCount - 1);
+            float popIn = popInOnSpawn ? popInDuration : 0f;
+            return lastIndex * spawnStagger + popIn + floatDuration + lastIndex * flyStagger + flyDuration;
         }
 
-        public void Stop()
+        public override Sequence BuildSequence(EffectContext ctx)
         {
-            if (_playCoroutine != null) { StopCoroutine(_playCoroutine); _playCoroutine = null; }
-            foreach (var item in _pool)
-            {
-                if (item == null) continue;
-                item.transform.DOKill();
-                item.SetActive(false);
-            }
-        }
+            if (!Validate(ctx.target))
+                return FinaliseSequence(DOTween.Sequence(), ctx.owner);
 
-        // ── Pool ──────────────────────────────────────────────────────────────
+            EnsurePool(ctx);
+            ResolveCanvas();
 
-        private void BuildPool()
-        {
-            if (itemPrefab == null) return;
-            ClearPool();
-            Transform parent = spawnParent != null ? (Transform)spawnParent : transform;
-            for (int i = 0; i < itemCount; i++)
-            {
-                var go = Instantiate(itemPrefab, parent);
-                go.SetActive(false);
-                go.name = $"{itemPrefab.name}_pool_{i}";
-                _pool.Add(go);
-            }
-        }
-
-        private void ClearPool()
-        {
-            foreach (var go in _pool) if (go != null) Destroy(go);
-            _pool.Clear();
-        }
-
-        private GameObject GetPooledItem()
-        {
-            foreach (var go in _pool)
-                if (go != null && !go.activeSelf) return go;
-            Transform parent = spawnParent != null ? (Transform)spawnParent : transform;
-            var extra = Instantiate(itemPrefab, parent);
-            extra.SetActive(false);
-            extra.name = $"{itemPrefab.name}_pool_{_pool.Count}";
-            _pool.Add(extra);
-            return extra;
-        }
-
-        // ── Canvas helpers ────────────────────────────────────────────────────
-
-        private void ResolveCanvas()
-        {
-            _canvas = spawnParent.GetComponentInParent<Canvas>();
-            _uiCamera = _canvas != null &&
-                        _canvas.renderMode != RenderMode.ScreenSpaceOverlay
-                ? _canvas.worldCamera : null;
-        }
-
-        private Vector2 WorldToParentAnchored(Vector3 worldPos)
-        {
-            Vector2 screen = RectTransformUtility.WorldToScreenPoint(_uiCamera, worldPos);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                spawnParent, screen, _uiCamera, out Vector2 local);
-            return local;
-        }
-
-        // ── Play routine ──────────────────────────────────────────────────────
-
-        private IEnumerator PlayRoutine()
-        {
             _arrivedCount = 0;
             _activeCount = itemCount;
 
-            ResolveCanvas();
-
-            Vector2 sourcePos = WorldToParentAnchored(transform.position);
+            Vector2 sourcePos = WorldToParentAnchored(ctx.target.position);
             Vector2 destPos = WorldToParentAnchored(destination.position);
+
+            Sequence master = DOTween.Sequence();
+
+            // The whole burst is built synchronously, up front, before any of
+            // it plays — so none of this play's items have had their
+            // SetActive(true) callback run yet when the next iteration asks
+            // for a pooled item. Picking by activeSelf alone would therefore
+            // hand back the same still-inactive slot (index 0) to every
+            // iteration. reservedThisPlay tracks what's already been claimed
+            // for THIS BuildSequence() call, on top of activeSelf still
+            // correctly skipping any item genuinely mid-flight from an
+            // earlier, still-overlapping play.
+            var reservedThisPlay = new HashSet<GameObject>();
 
             for (int i = 0; i < itemCount; i++)
             {
-                GameObject item = GetPooledItem();
+                GameObject item = GetPooledItem(ctx, reservedThisPlay);
                 if (item == null) { _activeCount--; continue; }
+                reservedThisPlay.Add(item);
 
                 Vector2 randOffset = Random.insideUnitCircle * spawnRadius * spawnRandomness;
                 Vector2 spawnPos = sourcePos + randOffset;
+                float itemArc = arcHeight + Random.Range(-arcVariance, arcVariance);
 
-                var rt = item.GetComponent<RectTransform>();
+                Sequence itemSeq = BuildItemSequence(item, i, spawnPos, destPos, itemArc);
+                master.Insert(i * spawnStagger, itemSeq);
+            }
+
+            return FinaliseSequence(master, ctx.owner);
+        }
+
+        // ── Item animation ────────────────────────────────────────────────────
+
+        private Sequence BuildItemSequence(GameObject item, int itemIndex,
+                                            Vector2 spawnPos, Vector2 destPos, float itemArc)
+        {
+            var rt = item.GetComponent<RectTransform>();
+            Transform t = item.transform;
+
+            Sequence seq = DOTween.Sequence();
+
+            // ── Spawn — activate and place; the first thing this item's own
+            // timeline does, so it stays hidden until its stagger turn arrives
+            // even though the whole burst is built up front. ─────────────────
+            seq.InsertCallback(0f, () =>
+            {
                 if (rt != null)
                 {
                     rt.anchoredPosition = spawnPos;
                     rt.localScale = popInOnSpawn ? Vector3.zero : Vector3.one;
                     rt.localRotation = Quaternion.identity;
                 }
-
                 item.SetActive(true);
-
-                float itemArc = arcHeight + Random.Range(-arcVariance, arcVariance);
-                AnimateItem(item, i, spawnPos, destPos, itemArc);
-
-                if (spawnStagger > 0f)
-                    yield return new WaitForSeconds(spawnStagger);
-            }
-
-            _playCoroutine = null;
-        }
-
-        // ── Item animation ────────────────────────────────────────────────────
-
-        private void AnimateItem(GameObject item, int itemIndex,
-                                  Vector2 spawnPos, Vector2 destPos, float itemArc)
-        {
-            var rt = item.GetComponent<RectTransform>();
-            Transform t = item.transform;
-
-            float totalDur = floatDuration + flyStagger * itemIndex + flyDuration;
-
-            Sequence seq = DOTween.Sequence();
+            });
 
             // ── Pop in ────────────────────────────────────────────────────────
             if (popInOnSpawn)
@@ -252,9 +222,27 @@ namespace Creatush.TweenEffectsPro
 
             seq.Append(floatTween);
 
-            // ── Sprite sheet — joins float, runs full visible duration ─────────
+            // ── Sprite sheet — cycles frames off the sequence's own elapsed
+            // time for the item's full visible duration. Driven from OnUpdate
+            // (not a joined Tween) specifically so it can never shift where the
+            // next Append/AppendInterval lands — DOTween's Join/Insert extend the
+            // sequence's known duration to cover whatever they add, which would
+            // otherwise push the fly-stagger interval and fly tween to start
+            // after this ran its full course instead of after floatTween alone.
             if (spriteFrames != null && spriteFrames.Length > 0)
-                seq.Join(BuildSpriteSheetTween(item, totalDur));
+            {
+                var spriteImage = item.GetComponentInChildren<Image>();
+                if (spriteImage != null)
+                {
+                    float frameDur = 1f / Mathf.Max(1, spriteFrameRate);
+                    int frameCount = spriteFrames.Length;
+                    seq.OnUpdate(() =>
+                    {
+                        int frame = Mathf.FloorToInt(seq.Elapsed() / frameDur) % frameCount;
+                        spriteImage.sprite = spriteFrames[frame];
+                    });
+                }
+            }
 
             // ── Fly stagger ───────────────────────────────────────────────────
             if (flyStagger > 0f)
@@ -294,34 +282,69 @@ namespace Creatush.TweenEffectsPro
             });
 
             seq.SetLink(item, LinkBehaviour.KillOnDestroy);
-            seq.Play();
+            return seq;
         }
 
-        // ── Sprite sheet ──────────────────────────────────────────────────────
+        // ── Pool ──────────────────────────────────────────────────────────────
 
-        private Tween BuildSpriteSheetTween(GameObject item, float totalDuration)
+        private Transform PoolParent(EffectContext ctx) =>
+            spawnParent != null ? (Transform)spawnParent : ctx.owner.transform;
+
+        private void EnsurePool(EffectContext ctx)
         {
-            var image = item.GetComponentInChildren<Image>();
-            if (image == null) return DOTween.Sequence();
-
-            int frameCount = spriteFrames.Length;
-            float frameDur = 1f / Mathf.Max(1, spriteFrameRate);
-            int totalFrames = Mathf.Max(1, Mathf.RoundToInt(totalDuration / frameDur));
-            int frameIndex = 0;
-
-            return DOTween.To(
-                getter: () => frameIndex,
-                setter: v =>
-                {
-                    frameIndex = v;
-                    image.sprite = spriteFrames[v % frameCount];
-                },
-                endValue: totalFrames,
-                duration: totalDuration
-            ).SetEase(Ease.Linear);
+            if (_pool.Count > 0 || itemPrefab == null) return;
+            Transform parent = PoolParent(ctx);
+            for (int i = 0; i < itemCount; i++)
+            {
+                var go = Object.Instantiate(itemPrefab, parent);
+                go.SetActive(false);
+                go.name = $"{itemPrefab.name}_pool_{i}";
+                _pool.Add(go);
+            }
         }
 
-        // ── Editor accessors ──────────────────────────────────────────────────
+        private GameObject GetPooledItem(EffectContext ctx, HashSet<GameObject> reservedThisPlay)
+        {
+            foreach (var go in _pool)
+                if (go != null && !go.activeSelf && !reservedThisPlay.Contains(go)) return go;
+
+            if (itemPrefab == null) return null;
+            Transform parent = PoolParent(ctx);
+            var extra = Object.Instantiate(itemPrefab, parent);
+            extra.SetActive(false);
+            extra.name = $"{itemPrefab.name}_pool_{_pool.Count}";
+            _pool.Add(extra);
+            return extra;
+        }
+
+        /// <summary>Releases pooled instances — called by the owning MasterSequenceController's OnDestroy.</summary>
+        public void OnOwnerDestroyed(GameObject owner)
+        {
+            foreach (var go in _pool)
+                if (go != null) Object.Destroy(go);
+            _pool.Clear();
+        }
+
+        // ── Canvas helpers ────────────────────────────────────────────────────
+
+        private void ResolveCanvas()
+        {
+            if (spawnParent == null) return;
+            _canvas = spawnParent.GetComponentInParent<Canvas>();
+            _uiCamera = _canvas != null &&
+                        _canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? _canvas.worldCamera : null;
+        }
+
+        private Vector2 WorldToParentAnchored(Vector3 worldPos)
+        {
+            Vector2 screen = RectTransformUtility.WorldToScreenPoint(_uiCamera, worldPos);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                spawnParent, screen, _uiCamera, out Vector2 local);
+            return local;
+        }
+
+        // ── Editor accessors (used by MasterSequenceControllerEditor's Scene View gizmos) ──
 
         public RectTransform Destination => destination;
         public float ArcHeight => arcHeight;
@@ -332,21 +355,26 @@ namespace Creatush.TweenEffectsPro
 
         // ── Validation ────────────────────────────────────────────────────────
 
-        private bool Validate()
+        private bool Validate(Transform target)
         {
             if (itemPrefab == null)
             {
-                Debug.LogWarning("[EffectRewardFly] No item prefab assigned.", this);
+                Debug.LogWarning("[EffectRewardFly] No item prefab assigned.");
                 return false;
             }
             if (spawnParent == null)
             {
-                Debug.LogWarning("[EffectRewardFly] No spawn parent assigned.", this);
+                Debug.LogWarning("[EffectRewardFly] No spawn parent assigned.");
                 return false;
             }
             if (destination == null)
             {
-                Debug.LogWarning("[EffectRewardFly] No destination assigned.", this);
+                Debug.LogWarning("[EffectRewardFly] No destination assigned.");
+                return false;
+            }
+            if (target == null)
+            {
+                Debug.LogWarning("[EffectRewardFly] No source target assigned.");
                 return false;
             }
             return true;

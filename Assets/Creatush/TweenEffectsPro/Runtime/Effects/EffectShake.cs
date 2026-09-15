@@ -6,8 +6,8 @@ namespace Creatush.TweenEffectsPro
     // Shake uses DOTween's stochastic algorithm — the base ease fields
     // don't apply here. Shape the feel via Strength and Vibrato instead.
 
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Shake")]
-    public class EffectShake : VFXBehaviour
+    [System.Serializable]
+    public class EffectShake : EffectDefinition
     {
         [Header("Position Shake")]
         [SerializeField, Tooltip("Enable position shake.")]
@@ -44,12 +44,11 @@ namespace Creatush.TweenEffectsPro
         [SerializeField, Tooltip("Fade out the shake smoothly at the end rather than cutting.")]
         private bool fadeOut = true;
 
-        // ── VFXBehaviour ──────────────────────────────────────────────────────
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             Vector3 originScale = target.localScale;
@@ -70,7 +69,6 @@ namespace Creatush.TweenEffectsPro
                 seq.Join(target.DOShakeScale(duration, scaleStrength,
                     vibrato, randomness, fadeOut));
 
-            // Restore state cleanly — DOShake doesn't guarantee exact return to origin
             seq.OnComplete(() =>
             {
                 target.localPosition = originPos;
@@ -78,7 +76,7 @@ namespace Creatush.TweenEffectsPro
                 target.localScale = originScale;
             });
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

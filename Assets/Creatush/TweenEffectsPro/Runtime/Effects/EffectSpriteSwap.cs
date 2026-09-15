@@ -8,12 +8,11 @@ namespace Creatush.TweenEffectsPro
     /// Drives a frame-by-frame sprite animation on a UI Image — no Animator,
     /// no Animation component, no controller required.
     /// Frames are played in order from the sprites array at the rate determined
-    /// by duration / frame count. Pairs naturally with the loop system for
+    /// by duration / frame count. Pairs naturally with the owning MasterSequenceController's Loop for
     /// idle sprite animations (coin spin, button shimmer, loading icon, etc.).
     /// </summary>
-    [RequireComponent(typeof(UnityEngine.UI.Image))]
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Sprite Swap")]
-    public class EffectSpriteSwap : VFXBehaviour
+    [System.Serializable]
+    public class EffectSpriteSwap : EffectDefinition
     {
         [Header("Sprite Settings")]
         [SerializeField, Tooltip("Frames to play in order. Drag your sprite sheet frames here.")]
@@ -22,35 +21,31 @@ namespace Creatush.TweenEffectsPro
         [SerializeField, Tooltip("Play frames in reverse order.")]
         private bool reverse = false;
 
-        [SerializeField, Tooltip("Target Image component. Defaults to one on the target Transform if empty.")]
+        [SerializeField, Tooltip("Explicit Image override, for when it lives outside the step Target's own hierarchy entirely. Leave empty to find one on the Target or its children.")]
         private Image targetImage;
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             if (frames == null || frames.Length == 0)
             {
-                Debug.LogWarning($"[EffectSpriteSwap] No frames assigned on '{name}'.", this);
-                return FinaliseSequence(DOTween.Sequence());
+                Debug.LogWarning($"[EffectSpriteSwap] No frames assigned on '{target.name}'.", target);
+                return FinaliseSequence(DOTween.Sequence(), ctx.owner);
             }
 
             var image = targetImage != null
                 ? targetImage
-                : target.GetComponent<Image>();
+                : target.GetComponentInChildren<Image>(true);
 
             if (image == null)
             {
-                Debug.LogWarning($"[EffectSpriteSwap] No Image found on '{target.name}'.", target);
-                return FinaliseSequence(DOTween.Sequence());
+                Debug.LogWarning($"[EffectSpriteSwap] No Image found on '{target.name}' or its children.", target);
+                return FinaliseSequence(DOTween.Sequence(), ctx.owner);
             }
-
-            var frameList = reverse
-                ? System.Array.AsReadOnly(frames) // reversed below
-                : System.Array.AsReadOnly(frames);
 
             Sprite[] ordered = new Sprite[frames.Length];
             frames.CopyTo(ordered, 0);
@@ -68,7 +63,7 @@ namespace Creatush.TweenEffectsPro
                 seq.AppendInterval(frameDuration);
             }
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

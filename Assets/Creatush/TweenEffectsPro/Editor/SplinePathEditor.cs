@@ -64,7 +64,7 @@ namespace Creatush.TweenEffectsPro.Editor
 
         private void DrawPathSettings()
         {
-            EditorGUILayout.LabelField("⚙️  Path Settings", _headerStyle);
+            EditorGUILayout.LabelField("Path Settings", _headerStyle);
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
             EditorGUI.BeginChangeCheck();
@@ -112,7 +112,7 @@ namespace Creatush.TweenEffectsPro.Editor
         {
             var knots = _asset.knots;
 
-            EditorGUILayout.LabelField($"🔵  Knots  ({knots.Count})", _headerStyle);
+            EditorGUILayout.LabelField($"Knots ({knots.Count})", _headerStyle);
 
             if (knots.Count == 0)
             {

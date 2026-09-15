@@ -8,8 +8,8 @@ namespace Creatush.TweenEffectsPro
     /// A temporary pivot GameObject is created at runtime for the duration
     /// of the effect and cleaned up automatically on complete or kill.
     /// </summary>
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Pivot Orbit")]
-    public class EffectPivotOrbit : VFXBehaviour
+    [System.Serializable]
+    public class EffectPivotOrbit : EffectDefinition
     {
         [Header("Orbit Settings")]
         [SerializeField, Tooltip("Offset from the target's world position that acts as the pivot.")]
@@ -21,11 +21,11 @@ namespace Creatush.TweenEffectsPro
         [SerializeField, Tooltip("World-space axis to rotate around.")]
         private Vector3 axis = Vector3.forward;
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             GameObject pivotGO = new GameObject("_OrbitPivot");
@@ -46,13 +46,12 @@ namespace Creatush.TweenEffectsPro
             }
 
             Sequence seq = DOTween.Sequence();
-            seq.Append(ApplyEase(
-                pivot.DORotate(axis.normalized * degrees, duration, RotateMode.FastBeyond360)));
+            seq.Append(ApplyEase(pivot.DORotate(axis.normalized * degrees, duration, RotateMode.FastBeyond360)));
 
             seq.OnComplete(() => Restore());
             seq.OnKill(() => Restore());
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

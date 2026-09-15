@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace Creatush.TweenEffectsPro
 {
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Crossfade")]
-    public class EffectCrossfade : VFXBehaviour
+    [System.Serializable]
+    public class EffectCrossfade : EffectDefinition
     {
         [Header("Groups")]
         [SerializeField] private List<CanvasGroup> fadeOutGroups;
@@ -21,10 +21,9 @@ namespace Creatush.TweenEffectsPro
 
         // 'duration' from base drives the fade-out duration.
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
             Sequence seq = DOTween.Sequence();
 
@@ -42,7 +41,7 @@ namespace Creatush.TweenEffectsPro
                 }
             });
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

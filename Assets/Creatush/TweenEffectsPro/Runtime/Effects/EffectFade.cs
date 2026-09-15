@@ -3,9 +3,8 @@ using DG.Tweening;
 
 namespace Creatush.TweenEffectsPro
 {
-    [RequireComponent(typeof(CanvasGroup))]
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Fade")]
-    public class EffectFade : VFXBehaviour
+    [System.Serializable]
+    public class EffectFade : EffectDefinition
     {
         [Header("Fade Settings")]
         [SerializeField, Range(0f, 1f), Tooltip("Alpha at the start of the effect.")]
@@ -14,18 +13,17 @@ namespace Creatush.TweenEffectsPro
         [SerializeField, Range(0f, 1f), Tooltip("Alpha at the end of the effect.")]
         private float endAlpha = 1f;
 
+        public override float GetDuration() => duration;
 
-        public override float GetDuration() { return duration; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
-            if (target == null) return null;
+            if (ctx.target == null) return null;
 
-            var cg = target.GetComponent<CanvasGroup>();
+            var cg = ctx.target.GetComponentInChildren<CanvasGroup>(true);
             if (cg == null)
             {
-                Debug.LogWarning($"[EffectFade] No CanvasGroup found on '{target.name}'. " +
-                                  "Add one or use EffectColorTint for non-canvas objects.", target);
+                Debug.LogWarning($"[EffectFade] No CanvasGroup found on '{ctx.target.name}' or its children. " +
+                                  "Add one or use EffectColorTint for non-canvas objects.", ctx.target);
                 return DOTween.Sequence();
             }
 
@@ -34,7 +32,7 @@ namespace Creatush.TweenEffectsPro
             Sequence seq = DOTween.Sequence();
             seq.Append(ApplyEase(cg.DOFade(endAlpha, duration)));
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

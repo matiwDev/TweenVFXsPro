@@ -3,12 +3,15 @@ using DG.Tweening;
 
 namespace Creatush.TweenEffectsPro
 {
-    // Float is inherently looping — loop is enabled by default.
+    // One rise-and-fall cycle per play. For a continuously idling float,
+    // enable Loop on the owning MasterSequenceController (Auto Play > Loop, count -1) —
+    // looping is a whole-sequence concern now, not something an effect opts
+    // into on its own.
     // EaseMode defaults to Preset/InOutSine for the natural sine-wave feel,
     // but the designer can swap to a curve for custom rhythms.
 
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Float")]
-    public class EffectFloat : VFXBehaviour
+    [System.Serializable]
+    public class EffectFloat : EffectDefinition
     {
         [Header("Float Settings")]
         [SerializeField, Tooltip("How far the target moves up and down from its origin, in local units.")]
@@ -19,18 +22,15 @@ namespace Creatush.TweenEffectsPro
 
         public EffectFloat()
         {
-            // Sensible defaults for an idle loop
-            loop = true;
-            loopCount = -1;
             ease = Ease.InOutSine;
         }
 
+        public override float GetDuration() => duration * 2f;
 
-        public override float GetDuration() { return duration * 2f; }
-
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
-            if (target == null) return null;
+            if (ctx.target == null) return null;
+            Transform target = ctx.target;
 
             Vector3 origin = target.localPosition;
             Vector3 peak = origin + new Vector3(0f, amplitude, 0f);
@@ -49,7 +49,7 @@ namespace Creatush.TweenEffectsPro
             if (tiltDegrees != 0f)
                 seq.Join(ApplyEase(target.DOLocalRotate(tiltDown, duration)));
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }

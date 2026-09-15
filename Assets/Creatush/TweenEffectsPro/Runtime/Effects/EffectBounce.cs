@@ -3,8 +3,8 @@ using DG.Tweening;
 
 namespace Creatush.TweenEffectsPro
 {
-    [AddComponentMenu("Creatush/TweenEffects Pro/Effect Bounce")]
-    public class EffectBounce : VFXBehaviour
+    [System.Serializable]
+    public class EffectBounce : EffectDefinition
     {
         [Header("Bounce Settings")]
         [SerializeField, Tooltip("Height of the bounce in local units.")]
@@ -18,10 +18,11 @@ namespace Creatush.TweenEffectsPro
          Tooltip("How springy the landing recovery is.\n0 = snaps back instantly, 2 = very bouncy overshoot.")]
         private float bounciness = 1f;
 
-        public override float GetDuration() { return duration; }
+        public override float GetDuration() => duration;
 
-        public override Sequence BuildSequence(int index, int totalCount, Transform target)
+        public override Sequence BuildSequence(EffectContext ctx)
         {
+            Transform target = ctx.target;
             if (target == null) return null;
 
             Vector3 originPos = target.localPosition;
@@ -42,25 +43,14 @@ namespace Creatush.TweenEffectsPro
                 originScale.z * (1f + squashStrength * 0.4f));
 
             // ── Pivot simulation via position offset ───────────────────────────
-            // When we stretch the Y scale, the object grows around its centre.
-            // To simulate "pivot=bottom" (bottom stays planted), we shift the
-            // object up by half the extra height so the bottom doesn't move.
-            // extraHeight = originScale.y * (stretchFactor - 1) * 0.5
             float extraHeight = originScale.y * squashStrength * 0.5f;
-
-            // Stretch-up planted position (bottom stays on floor)
             Vector3 stretchUpPos = originPos + Vector3.up * extraHeight;
 
-            // At apex, object is at bounceHeight + stretchUpPos.y
-            // When we unstretch at apex, centre moves back down by extraHeight
             Vector3 apexPos = new Vector3(originPos.x,
                                          originPos.y + bounceHeight,
                                          originPos.z);
             Vector3 apexStretchPos = apexPos + Vector3.up * extraHeight;
 
-            // Landing squash: bottom stays on floor, object squashes down
-            // squashY = originScale.y * (1 - squashStrength*0.8)
-            // object centre drops by half the lost height
             float lostHeight = originScale.y * squashStrength * 0.8f * 0.5f;
             Vector3 landSquashPos = originPos - Vector3.up * lostHeight;
 
@@ -75,7 +65,6 @@ namespace Creatush.TweenEffectsPro
             Sequence seq = DOTween.Sequence();
 
             // ── 1. Stretch up — bottom stays planted ──────────────────────────
-            // Scale and position change together so bottom is fixed
             seq.Append(target.DOScale(stretchScale, tStretchUp).SetEase(Ease.OutQuad));
             seq.Join(target.DOLocalMove(stretchUpPos, tStretchUp).SetEase(Ease.OutQuad));
 
@@ -83,7 +72,6 @@ namespace Creatush.TweenEffectsPro
             seq.Append(ApplyEase(target.DOLocalMove(apexStretchPos, tRise)));
 
             // ── 3. Unstretch at apex — top stays fixed ────────────────────────
-            // Scale shrinks back, position drops by extraHeight to keep top fixed
             seq.Append(target.DOScale(originScale, tUnstretch).SetEase(Ease.InOutQuad));
             seq.Join(target.DOLocalMove(apexPos, tUnstretch).SetEase(Ease.InOutQuad));
 
@@ -106,7 +94,7 @@ namespace Creatush.TweenEffectsPro
                 target.localScale = originScale;
             });
 
-            return FinaliseSequence(seq);
+            return FinaliseSequence(seq, ctx.owner);
         }
     }
 }
